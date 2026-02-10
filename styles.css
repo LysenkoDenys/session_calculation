@@ -1,0 +1,20 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background-color: #208115;
+  background-image: url('https://www.transparenttextures.com/patterns/basketball.png');
+  color: #fff;
+  user-select: none; /* Standard */
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  margin: 1%;
+}

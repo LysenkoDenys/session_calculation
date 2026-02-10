@@ -17,10 +17,26 @@
     <script src="db.js" type="module"></script>
   </head>
   <body>
-    <div class="container"></div>
+    <div class="container">
+      <div class="timer" id="timer">
+        <h2>00:00:00</h2>
+      </div>
+      <div class="session-form">
+        <input type="text" placeholder="Session category" />
+        <input type="button" value="START" />
+        <input type="button" value="PAUSE" />
+        <input type="button" value="STOP" />
+      </div>
+      <div class="session-container">
+        <div class="session-item">
+          <h2>Session 1</h2>
+          <p>Duration: 1 hour</p>
+        </div>
+      </div>
+    </div>
 
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script>
+    <!-- <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
           navigator.serviceWorker.register('/sw.js').then(
@@ -38,6 +54,6 @@
           );
         });
       }
-    </script>
+    </script> -->
   </body>
 </html>
