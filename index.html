@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,25 +7,46 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta
-      name="description"
-      content="session calculator"
-    />
+    <meta name="description" content="session calculator" />
     <title>session calculator</title>
     <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
     <script src="script.js" type="module" defer></script>
     <script src="db.js" type="module"></script>
   </head>
   <body>
     <div class="container">
       <div class="timer" id="timer">
-        <h2>00:00:00</h2>
+        <h1 id="time-display">00:00:00</h1>
       </div>
       <div class="session-form">
-        <input type="text" placeholder="Session category" />
-        <input type="button" value="START" />
-        <input type="button" value="PAUSE" />
-        <input type="button" value="STOP" />
+        <div class="input-wrapper">
+          <input
+            id="input-category"
+            type="text"
+            placeholder="Session category"
+          />
+        </div>
+        <div class="controls">
+          <button id="start-button" class="btn start">
+            <i class="fa-solid fa-play"></i>
+          </button>
+
+          <button id="pause-button" class="btn pause">
+            <i class="fa-solid fa-pause"></i>
+          </button>
+
+          <button id="stop-button" class="btn stop">
+            <i class="fa-solid fa-stop"></i>
+          </button>
+        </div>
       </div>
       <div class="session-container">
         <div class="session-item">
