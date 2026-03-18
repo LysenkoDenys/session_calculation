@@ -23,4 +23,5 @@ https://sec2go.vercel.app/
 ## TODO:
 
 <p> 1) by default if no session name -> session-20226-03-17-16-52</p>
-<p>statistic day by day</p>
+<p> 2) statistic day by day</p>
+<p> 3) notification 👉 показувати: “Session is running…” Service Worker PWA</p>

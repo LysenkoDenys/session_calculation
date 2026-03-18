@@ -73,7 +73,7 @@ h1 {
   font-size: 14px;
   font-family: 'Inter', 'Segoe UI', sans-serif;
 
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
 
   box-shadow:
@@ -136,10 +136,6 @@ h1 {
   background: linear-gradient(145deg, #28a745, #1e7e34);
 }
 
-.pause {
-  background: linear-gradient(145deg, #ffc107, #d39e00);
-}
-
 .stop {
   background: linear-gradient(145deg, #dc3545, #a71d2a);
 }
@@ -153,8 +149,4 @@ h1 {
 
 .start.active {
   box-shadow: 0 0 20px #28a745;
-}
-
-.pause.active {
-  box-shadow: 0 0 20px #ffc107;
 }

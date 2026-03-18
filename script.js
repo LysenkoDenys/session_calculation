@@ -2,24 +2,15 @@ const categories = ['work', 'study', 'exercise', 'other'];
 
 function updateButtons(state) {
   const start = document.getElementById('start-button');
-  const pause = document.getElementById('pause-button');
   const stop = document.getElementById('stop-button');
 
   if (state === 'idle') {
     start.disabled = false;
-    pause.disabled = true;
     stop.disabled = true;
   }
 
   if (state === 'running') {
     start.disabled = true;
-    pause.disabled = false;
-    stop.disabled = false;
-  }
-
-  if (state === 'paused') {
-    start.disabled = false;
-    pause.disabled = true;
     stop.disabled = false;
   }
 }
