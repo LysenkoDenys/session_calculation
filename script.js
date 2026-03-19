@@ -1,5 +1,18 @@
 const categories = ['work', 'study', 'exercise', 'other'];
 
+let interval = null;
+const timer = document.getElementById('timer');
+const display = document.getElementById('time-display');
+
+// helpers:
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+  const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+  const s = String(totalSeconds % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
 function updateButtons(state) {
   const start = document.getElementById('start-button');
   const stop = document.getElementById('stop-button');
@@ -14,79 +27,34 @@ function updateButtons(state) {
     stop.disabled = false;
   }
 }
-
-const timer = document.getElementById('timer');
-const display = document.getElementById('time-display');
-
-document.getElementById('start-button').onclick = () => {
-  if (!startTime) startTime = Date.now();
-
-  timer.classList.remove('paused');
-  timer.classList.add('running');
+// //tim
+// UI timer:
+function startTimerUI(startTime) {
+  clearInterval(interval);
 
   interval = setInterval(() => {
-    display.textContent = formatTime(Date.now() - startTime);
+    const diff = Date.now() - startTime;
+    display.textContent = formatTime(diff);
   }, 1000);
-};
+}
 
-document.getElementById('pause-button').onclick = () => {
+function resetUI() {
   clearInterval(interval);
-
-  timer.classList.remove('running');
-  timer.classList.add('paused');
-};
-
-document.getElementById('stop-button').onclick = () => {
-  clearInterval(interval);
-
-  timer.classList.remove('running', 'paused');
-
   display.textContent = '00:00:00';
-  startTime = null;
-};
+}
 
-// //timer:
-// let timeElapsed = 0;
-// let timerInterval;
-// let isRunning = false;
+document.getElementById('start-button').addEventListener('click', () => {
+  console.log('START clicked');
 
-// const startTimer = () => {
-//   // if (isRunning) return;
-//   isRunning = true;
-//   elements.timerNode.style.backgroundColor = colors.runningTimer;
-//   timerInterval = setInterval(() => {
-//     timeElapsed++;
-//     updateTimerDisplay(timeElapsed);
-//   }, 1000);
-// };
+  const fakeStart = Date.now();
+  startTimerUI(fakeStart);
 
-// function pauseTimer() {
-//   if (!isRunning) return;
-//   isRunning = false;
-//   clearInterval(timerInterval);
-//   elements.timerNode.style.backgroundColor = colors.pausedTimer;
-// }
+  updateButtons('running');
+});
 
-// function updateTimerDisplay(time) {
-//   const minutes = Math.floor(time / 60);
-//   const seconds = time % 60;
-//   document.getElementById('timer').textContent = `${padZero(minutes)}:${padZero(
-//     seconds,
-//   )}`;
-// }
+document.getElementById('stop-button').addEventListener('click', () => {
+  console.log('STOP clicked');
 
-// function padZero(number) {
-//   return number < 10 ? `0${number}` : number;
-// }
-
-// function resetTimer() {
-//   clearInterval(timerInterval);
-//   timeElapsed = 0;
-//   document.getElementById('timer').textContent = '00:00';
-//   elements.timerNode.style.backgroundColor = colors.runningTimer;
-// }
-
-// //5 timer:
-// elements.timerNode.addEventListener('click', () => {
-//   isRunning ? pauseTimer() : startTimer();
-// });
+  resetUI();
+  updateButtons('idle');
+});

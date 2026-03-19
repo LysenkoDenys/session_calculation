@@ -1,7 +1,7 @@
 // sw.js
 
 const CACHE_NAME = 'my-cache-v1';
-const urlsToCache = ['/', 'index.html', 'styles.css', 'script.js', 'db.js'];
+const urlsToCache = ['/', 'index.html', 'styles.css', 'script.js'];
 
 self.addEventListener('install', function (event) {
   // Perform installation steps
@@ -9,7 +9,7 @@ self.addEventListener('install', function (event) {
     caches.open(CACHE_NAME).then(function (cache) {
       console.log('Opened cache');
       return cache.addAll(urlsToCache);
-    })
+    }),
   );
 });
 
@@ -39,6 +39,6 @@ self.addEventListener('fetch', function (event) {
 
         return response;
       });
-    })
+    }),
   );
 });
