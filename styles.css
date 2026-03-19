@@ -16,7 +16,10 @@ body {
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  margin: 1%;
+  margin: 1% auto;
+  width: 100%;
+  max-width: 500px;
+  padding: 5px;
 }
 
 h1 {
@@ -30,7 +33,7 @@ h1 {
 }
 
 #time-display {
-  font-size: 64px;
+  font-size: clamp(42px, 8vw, 64px);
   font-weight: 600;
   letter-spacing: 3px;
 
@@ -55,6 +58,11 @@ h1 {
 }
 
 /* ==============================input ===============================*/
+
+.session-form {
+  width: 100%;
+}
+
 .input-wrapper {
   width: 100%;
   display: flex;
@@ -63,14 +71,15 @@ h1 {
 }
 
 #input-category {
-  width: 260px;
+  width: 100%;
+  max-width: 300px;
   padding: 12px 16px;
 
   border-radius: 12px;
   border: none;
   outline: none;
 
-  font-size: 14px;
+  font-size: 18px;
   font-family: 'Inter', 'Segoe UI', sans-serif;
 
   background: rgba(255, 255, 255, 0.2);
@@ -109,11 +118,11 @@ h1 {
 }
 
 .btn {
-  width: 70px;
-  height: 70px;
+  width: clamp(60px, 15vw, 70px);
+  height: clamp(60px, 15vw, 70px);
+  font-size: clamp(18px, 5vw, 24px);
   border-radius: 50%;
   border: none;
-  font-size: 24px;
   cursor: pointer;
   color: white;
   display: flex;
