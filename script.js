@@ -13,6 +13,19 @@ function formatTime(ms) {
   return `${h}:${m}:${s}`;
 }
 
+function formatDate(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const date = new Date(ms);
+
+  const y = date.getFullYear();
+  const mo = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const h = String(date.getHours()).padStart(2, '0');
+  const m = String(date.getMinutes()).padStart(2, '0');
+  const s = String(date.getSeconds()).padStart(2, '0');
+ return `${y}-${mo}-${d}_${h}:${m}:${s}`
+};
+
 function updateButtons(state) {
   const start = document.getElementById('start-button');
   const stop = document.getElementById('stop-button');
@@ -27,7 +40,6 @@ function updateButtons(state) {
     stop.disabled = false;
   }
 }
-// //tim
 // UI timer:
 function startTimerUI(startTime) {
   clearInterval(interval);
@@ -43,6 +55,27 @@ function resetUI() {
   display.textContent = '00:00:00';
 }
 
+
+
+
+
+//START:
+document.getElementById('start-button').onclick=()=>{
+  const session={
+    start: Date.now(),
+    category: `${document.getElementById('input-category').value}: ${formatDate(Date.now())}`|| `${categories[3]}: ${formatDate(Date.now())}`
+  }
+
+
+localStorage.setItem('activeSession', JSON.stringify(session))
+timer.classList.add('running')
+
+startTimerUI(session.start);
+updateButtons('running')
+}
+
+
+
 document.getElementById('start-button').addEventListener('click', () => {
   console.log('START clicked');
 
@@ -52,9 +85,14 @@ document.getElementById('start-button').addEventListener('click', () => {
   updateButtons('running');
 });
 
+
 document.getElementById('stop-button').addEventListener('click', () => {
   console.log('STOP clicked');
 
   resetUI();
   updateButtons('idle');
 });
+
+console.log(formatDate(1774074291471))
+
+
