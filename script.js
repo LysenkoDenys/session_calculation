@@ -3,6 +3,7 @@ const categories = ["work", "study", "exercise", "other"];
 let interval = null;
 const timer = document.getElementById("timer");
 const display = document.getElementById("time-display");
+const select = document.getElementById("category-select");
 
 // helpers:
 function formatTime(ms) {
@@ -40,6 +41,25 @@ function updateButtons(state) {
     stop.disabled = false;
   }
 }
+
+function populateCategories() {
+  select.innerHTML = "";
+
+  const lastCategory = localStorage.getItem("lastCategory") || "other";
+
+  categories.forEach((cat) => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+
+    if (cat === lastCategory) {
+      option.selected = true;
+    }
+
+    select.appendChild(option);
+  });
+}
+
 // UI timer:
 function startTimerUI(startTime) {
   clearInterval(interval);
@@ -57,14 +77,14 @@ function resetUI() {
 
 //START:
 document.getElementById("start-button").onclick = () => {
+  const category = select.value || "other";
   const session = {
     start: Date.now(),
-    category: document.getElementById("input-category").value
-      ? `${document.getElementById("input-category").value}: ${formatDate(Date.now())}`
-      : `${categories[3]}: ${formatDate(Date.now())}`,
+    category: category,
   };
 
   localStorage.setItem("activeSession", JSON.stringify(session));
+  localStorage.setItem("lastCategory", category);
   timer.classList.add("running");
 
   startTimerUI(session.start);
@@ -75,7 +95,7 @@ document.getElementById("start-button").onclick = () => {
 document.getElementById("stop-button").onclick = () => {
   const session = JSON.parse(localStorage.getItem("activeSession"));
 
-  if (!session) feturn;
+  if (!session) return;
 
   const end = Date.now();
   const duration = end - session.start;
@@ -92,6 +112,7 @@ document.getElementById("stop-button").onclick = () => {
 // RESTORE:
 window.addEventListener("load", () => {
   const session = JSON.parse(localStorage.getItem("activeSession"));
+  populateCategories();
 
   if (session) {
     timer.classList.add("running");
@@ -103,21 +124,7 @@ window.addEventListener("load", () => {
   }
 });
 
-// CHECK:
-document.getElementById("start-button").addEventListener("click", () => {
-  console.log("START clicked");
-
-  const fakeStart = Date.now();
-  startTimerUI(fakeStart);
-
-  updateButtons("running");
-});
-
-document.getElementById("stop-button").addEventListener("click", () => {
-  console.log("STOP clicked");
-
-  resetUI();
-  updateButtons("idle");
-});
+// SESSIONS LIST:
+const sessions = JSON.parse(localStorage.getItem("sessions") || "[]");
 
 console.log(formatDate(1774074291471));
