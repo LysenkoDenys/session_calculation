@@ -4,6 +4,7 @@ let interval = null;
 const timer = document.getElementById("timer");
 const display = document.getElementById("time-display");
 const select = document.getElementById("category-select");
+const nodeSessionsList = document.getElementById("session-container");
 
 // helpers:
 function formatTime(ms) {
@@ -60,6 +61,33 @@ function populateCategories() {
   });
 }
 
+function populateSessions() {
+  nodeSessionsList.innerHTML = "";
+
+  const sessionsList = JSON.parse(localStorage.getItem("sessions")) || "[]";
+
+  sessionsList.reverse().forEach((item) => {
+    const sessionItem = document.createElement("div");
+    sessionItem.className = "session-item";
+    const divCategory = document.createElement("div");
+    divCategory.innerHTML = `${item.category}:`;
+    divCategory.className = "session-item__category";
+    sessionItem.appendChild(divCategory);
+
+    const divInfo = document.createElement("div");
+    divInfo.innerHTML = `${formatDate(item.start)} - ${formatDate(item.end)}`;
+    divInfo.className = "session-item__info";
+    sessionItem.appendChild(divInfo);
+
+    const divDur = document.createElement("div");
+    divDur.innerHTML = `${formatTime(item.duration)}`;
+    divDur.className = "session-item__duration";
+    sessionItem.appendChild(divDur);
+
+    nodeSessionsList.appendChild(sessionItem);
+  });
+}
+
 // UI timer:
 function startTimerUI(startTime) {
   clearInterval(interval);
@@ -100,12 +128,24 @@ document.getElementById("stop-button").onclick = () => {
   const end = Date.now();
   const duration = end - session.start;
 
+  // session list:
+  const sessions = JSON.parse(localStorage.getItem("sessions") || "[]");
+
+  sessions.push({
+    ...session,
+    end,
+    duration,
+  });
+
+  localStorage.setItem("sessions", JSON.stringify(sessions));
+
   console.log("Session:", { ...session, end, duration });
 
   localStorage.removeItem("activeSession");
   timer.classList.remove("running");
 
   resetUI();
+  populateSessions();
   updateButtons("idle");
 };
 
@@ -113,6 +153,7 @@ document.getElementById("stop-button").onclick = () => {
 window.addEventListener("load", () => {
   const session = JSON.parse(localStorage.getItem("activeSession"));
   populateCategories();
+  populateSessions();
 
   if (session) {
     timer.classList.add("running");
@@ -123,8 +164,5 @@ window.addEventListener("load", () => {
     updateButtons("idle");
   }
 });
-
-// SESSIONS LIST:
-const sessions = JSON.parse(localStorage.getItem("sessions") || "[]");
 
 console.log(formatDate(1774074291471));
