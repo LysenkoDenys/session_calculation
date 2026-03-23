@@ -66,13 +66,16 @@ function populateSessions() {
 
   const sessionsList = JSON.parse(localStorage.getItem("sessions")) || "[]";
 
-  sessionsList.reverse().forEach((item) => {
+  [...sessionsList].reverse().forEach((item) => {
     const sessionItem = document.createElement("div");
     sessionItem.className = "session-item";
+    const topRow = document.createElement("div");
+    topRow.className = "session-item__top";
     const divCategory = document.createElement("div");
     divCategory.innerHTML = `${item.category}:`;
     divCategory.className = "session-item__category";
-    sessionItem.appendChild(divCategory);
+    topRow.appendChild(divCategory);
+    sessionItem.appendChild(topRow);
 
     const divInfo = document.createElement("div");
     divInfo.innerHTML = `${formatDate(item.start)} - ${formatDate(item.end)}`;
@@ -82,8 +85,7 @@ function populateSessions() {
     const divDur = document.createElement("div");
     divDur.innerHTML = `${formatTime(item.duration)}`;
     divDur.className = "session-item__duration";
-    sessionItem.appendChild(divDur);
-
+    topRow.appendChild(divDur);
     nodeSessionsList.appendChild(sessionItem);
   });
 }

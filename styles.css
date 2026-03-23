@@ -195,21 +195,24 @@ h1 {
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   width: 100%;
-  padding: 12px;
+  padding: 8px 12px;
   border-radius: 12px;
   display: flex;
-  justify-content: space-between;
   flex-direction: column;
-  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 2px;
+}
+
+.session-item__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .session-item__category {
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.5rem;
   color: #fff;
-  margin-right: 8px;
 }
 
 .session-item__info {
@@ -217,9 +220,9 @@ h1 {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 8px;
-  font-size: 1rem;
-  color: burlywood;
+  gap: 2px;
+  font-size: 0.8rem;
+  opacity: 0.7;
   min-width: 0;
 }
 
