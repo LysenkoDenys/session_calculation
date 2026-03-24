@@ -5,6 +5,7 @@ const timer = document.getElementById("timer");
 const display = document.getElementById("time-display");
 const select = document.getElementById("category-select");
 const nodeSessionsList = document.getElementById("session-container");
+const nodeTotal = document.getElementById("total");
 
 // helpers:
 function formatTime(ms) {
@@ -26,6 +27,16 @@ function formatDate(ms) {
   const m = String(date.getMinutes()).padStart(2, "0");
   const s = String(date.getSeconds()).padStart(2, "0");
   return `${y}-${mo}-${d}_${h}:${m}:${s}`;
+}
+
+function getDayformatDate(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const date = new Date(ms);
+
+  const y = date.getFullYear();
+  const mo = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${mo}-${d}`;
 }
 
 function updateButtons(state) {
@@ -89,6 +100,16 @@ function populateSessions() {
     nodeSessionsList.appendChild(sessionItem);
   });
 }
+
+function getTotalDayTime() {
+  nodeTotal.innerHTML = "";
+  const sessionsList = JSON.parse(localStorage.getItem("sessions") || "[]");
+  const lastActiveDay = getDayformatDate(
+    Math.max(...[...sessionsList].map((e) => +e["end"])),
+  );
+  console.log("Last active day:", lastActiveDay);
+}
+getTotalDayTime();
 
 // UI timer:
 function startTimerUI(startTime) {

@@ -23,8 +23,9 @@ https://sec2go.vercel.app/
 ## TODO:
 
 <p> 1) by default if no session name -> other-2026-03-17_16:52</p>
-<p> 2) statistic day by day</p>
+<p> 2) statistic day by day 7 days</p>
 <p> 3) notification 👉 показувати: “Session is running…” Service Worker PWA</p>
 <p> 4) зробимо “Today total time” з кольоровими сегментами по категоріях</p>
 <p> 5) зробити видалення сесій (swipe to the left)</p>
-<p> 6) покращено UI підтягується остання категорія яку стартували автоматично (не треба кожного разу вибирати))</p>
+<p> 6) покращено UI підтягується остання категорія яку стартували автоматично (не треба кожного разу вибирати)</p>
+<p> 7) add reset button and chart button (and chart itself) </p>
