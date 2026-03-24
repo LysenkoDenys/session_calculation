@@ -75,7 +75,7 @@ function populateCategories() {
 function populateSessions() {
   nodeSessionsList.innerHTML = "";
 
-  const sessionsList = JSON.parse(localStorage.getItem("sessions")) || "[]";
+  const sessionsList = JSON.parse(localStorage.getItem("sessions") || "[]");
 
   [...sessionsList].reverse().forEach((item) => {
     const sessionItem = document.createElement("div");
@@ -104,12 +104,32 @@ function populateSessions() {
 function getTotalDayTime() {
   nodeTotal.innerHTML = "";
   const sessionsList = JSON.parse(localStorage.getItem("sessions") || "[]");
+  if (sessionsList.length === 0) return "00:00:00";
   const lastActiveDay = getDayformatDate(
     Math.max(...[...sessionsList].map((e) => +e["end"])),
   );
   console.log("Last active day:", lastActiveDay);
+  const sessionsInlastActiveDay = [...sessionsList]
+    .filter((el) => getDayformatDate(+el["end"]) === lastActiveDay)
+    .reduce(
+      (accumulator, currentValue) => accumulator + currentValue["duration"],
+      0,
+    );
+  console.log("sessionDates:", formatTime(sessionsInlastActiveDay));
+  return formatTime(sessionsInlastActiveDay);
 }
-getTotalDayTime();
+
+const total = getTotalDayTime();
+
+function renderTotal() {
+  nodeTotal.innerHTML = "";
+
+  nodeTotal.innerHTML = `Today: ${total} Yesterday: ${"todo"}`;
+  nodeTotal.className = "total__info";
+  // sessionItem.appendChild(divInfo);
+}
+
+renderTotal();
 
 // UI timer:
 function startTimerUI(startTime) {
