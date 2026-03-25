@@ -102,27 +102,33 @@ function populateSessions() {
 }
 
 function getTotalDayTime() {
-  nodeTotal.innerHTML = "";
   const sessionsList = JSON.parse(localStorage.getItem("sessions") || "[]");
   if (sessionsList.length === 0) return "00:00:00";
-  const lastActiveDay = getDayformatDate(
-    Math.max(...[...sessionsList].map((e) => +e["end"])),
-  );
-  console.log("Last active day:", lastActiveDay);
-  const sessionsInlastActiveDay = [...sessionsList]
-    .filter((el) => getDayformatDate(+el["end"]) === lastActiveDay)
-    .reduce(
+
+  function getLastDay() {
+    return getDayformatDate(
+      Math.max(...[...sessionsList].map((e) => +e["end"])),
+    );
+  }
+
+  function getSessionsForDay() {
+    return [...sessionsList].filter(
+      (el) => getDayformatDate(+el["end"]) === getLastDay(),
+    );
+  }
+  function getTotal() {
+    return getSessionsForDay().reduce(
       (accumulator, currentValue) => accumulator + currentValue["duration"],
       0,
     );
-  console.log("sessionDates:", formatTime(sessionsInlastActiveDay));
-  return formatTime(sessionsInlastActiveDay);
+  }
+
+  // console.log("sessionDates:", formatTime(sessionsInlastActiveDay));
+  return formatTime(getTotal());
 }
 
-const total = getTotalDayTime();
-
 function renderTotal() {
-  nodeTotal.innerHTML = "";
+  const total = getTotalDayTime();
 
   nodeTotal.innerHTML = `Today: ${total} Yesterday: ${"todo"}`;
   nodeTotal.className = "total__info";
@@ -188,6 +194,7 @@ document.getElementById("stop-button").onclick = () => {
   timer.classList.remove("running");
 
   resetUI();
+  renderTotal();
   populateSessions();
   updateButtons("idle");
 };
