@@ -129,15 +129,18 @@ function getTotalDayTime() {
   return formatTime(getTotalTime);
 }
 
+// ========================================================================
 // THE PREV DAY:
 const getLastPrevDay = () => {
   const sessionsList = getSessions();
   if (sessionsList.length === 0) return "00:00:00";
-  const newArr = sessionsList.map((el) => el.end);
-  console.log(newArr);
+  return Array.from(
+    new Set(sessionsList.map((el) => getDayformatDate(el.end))),
+  ).sort((a, b) => b - a)[1];
 };
 
-getLastPrevDay();
+console.log(getLastPrevDay());
+// ========================================================================
 
 // Total time of the previous session day:
 function getTotalPrevDayTime() {
@@ -154,7 +157,7 @@ function renderTotal() {
   const total = getTotalDayTime();
   const prev = getTotalPrevDayTime();
 
-  nodeTotal.innerHTML = `Today: ${total} Yesterday: ${prev}`;
+  nodeTotal.innerHTML = `Current: ${total} Previous: ${prev}`;
   nodeTotal.className = "total__info";
   // sessionItem.appendChild(divInfo);
 }
@@ -239,7 +242,7 @@ window.addEventListener("load", () => {
   }
 });
 
-//STOP (todo: confirm window):
+// REMOVE (todo: confirm window):
 document.getElementById("delete-button").onclick = () => {
   alert("all the data will be deleted");
   localStorage.clear();
