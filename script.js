@@ -101,30 +101,31 @@ function populateSessions() {
   });
 }
 
+const getSessions = () => JSON.parse(localStorage.getItem("sessions") || "[]");
+
+const getLastDay = (sessionsList) =>
+  getDayformatDate(Math.max(...sessionsList.map((el) => el.end)));
+
+const getSessionsForDay = (sessionsList) => {
+  const lastDay = getLastDay(sessionsList);
+  return sessionsList.filter((el) => getDayformatDate(el.end) === lastDay);
+};
+
+function getTotal(sessionsOfDay) {
+  return sessionsOfDay.reduce(
+    (accumulator, currentValue) => accumulator + currentValue.duration,
+    0,
+  );
+}
+
 function getTotalDayTime() {
-  const sessionsList = JSON.parse(localStorage.getItem("sessions") || "[]");
+  const sessionsList = getSessions();
   if (sessionsList.length === 0) return "00:00:00";
 
-  function getLastDay() {
-    return getDayformatDate(
-      Math.max(...[...sessionsList].map((e) => +e["end"])),
-    );
-  }
+  const sessionsOfDay = getSessionsForDay(sessionsList);
 
-  function getSessionsForDay() {
-    return [...sessionsList].filter(
-      (el) => getDayformatDate(+el["end"]) === getLastDay(),
-    );
-  }
-  function getTotal() {
-    return getSessionsForDay().reduce(
-      (accumulator, currentValue) => accumulator + currentValue["duration"],
-      0,
-    );
-  }
-
-  // console.log("sessionDates:", formatTime(sessionsInlastActiveDay));
-  return formatTime(getTotal());
+  const getTotalTime = getTotal(sessionsOfDay);
+  return formatTime(getTotalTime);
 }
 
 function renderTotal() {
@@ -216,3 +217,7 @@ window.addEventListener("load", () => {
 });
 
 console.log(formatDate(1774074291471));
+
+// getLastDay(sessions)
+// getSessionsForDay(sessions, day)
+// getTotal(sessions)
