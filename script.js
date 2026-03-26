@@ -118,7 +118,29 @@ function getTotal(sessionsOfDay) {
   );
 }
 
+// Total time of the last session day:
 function getTotalDayTime() {
+  const sessionsList = getSessions();
+  if (sessionsList.length === 0) return "00:00:00";
+
+  const sessionsOfDay = getSessionsForDay(sessionsList);
+
+  const getTotalTime = getTotal(sessionsOfDay);
+  return formatTime(getTotalTime);
+}
+
+// THE PREV DAY:
+const getLastPrevDay = () => {
+  const sessionsList = getSessions();
+  if (sessionsList.length === 0) return "00:00:00";
+  const newArr = sessionsList.map((el) => el.end);
+  console.log(newArr);
+};
+
+getLastPrevDay();
+
+// Total time of the previous session day:
+function getTotalPrevDayTime() {
   const sessionsList = getSessions();
   if (sessionsList.length === 0) return "00:00:00";
 
@@ -130,8 +152,9 @@ function getTotalDayTime() {
 
 function renderTotal() {
   const total = getTotalDayTime();
+  const prev = getTotalPrevDayTime();
 
-  nodeTotal.innerHTML = `Today: ${total} Yesterday: ${"todo"}`;
+  nodeTotal.innerHTML = `Today: ${total} Yesterday: ${prev}`;
   nodeTotal.className = "total__info";
   // sessionItem.appendChild(divInfo);
 }
@@ -216,8 +239,12 @@ window.addEventListener("load", () => {
   }
 });
 
-console.log(formatDate(1774074291471));
+//STOP (todo: confirm window):
+document.getElementById("delete-button").onclick = () => {
+  alert("all the data will be deleted");
+  localStorage.clear();
+  renderTotal();
+  populateSessions();
+};
 
-// getLastDay(sessions)
-// getSessionsForDay(sessions, day)
-// getTotal(sessions)
+console.log(formatDate(1774074291471));

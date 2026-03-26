@@ -170,6 +170,14 @@ h1 {
   background: linear-gradient(145deg, #dc3545, #a71d2a);
 }
 
+.delete {
+  background: linear-gradient(145deg, #d6626d, #7f101c);
+}
+
+.chart {
+  background: linear-gradient(145deg, #a8aeee, #261da7);
+}
+
 .btn:disabled {
   background: #555;
   cursor: not-allowed;
@@ -187,6 +195,10 @@ total__info {
 }
 
 /* ==============================items===============================*/
+
+.sessions {
+  width: 90%;
+}
 
 #session-container {
   margin-top: 10px;
