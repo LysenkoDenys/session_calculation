@@ -201,8 +201,8 @@ function renderTotal() {
   const prev = getTotalPrevDayTime();
 
   nodeTotal.innerHTML = `
-  <div>Cur: <span id=total__span>${total}</span></div>
-  <div>Prev: <span id=prev__span>${prev}</span></div>
+  <div class='total__info_1'> <span class="total__span_1">Current: </span> <span class="total__span_2">${total}</span></div>
+   <div class='total__info_2'> <span class="prev__span_1">Previous: </span> <span class="prev__span_2">${prev}</span></div>
 `;
   nodeTotal.className = "total__info";
 }

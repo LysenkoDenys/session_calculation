@@ -51,7 +51,7 @@ h1 {
 }
 
 #time-display {
-  font-size: clamp(36px, 8vw, 42px);
+  font-size: clamp(28px, 8vw, 36px);
   font-weight: 600;
   letter-spacing: 3px;
 
@@ -82,15 +82,15 @@ h1 {
 }
 
 .input-wrapper {
-  width: 30%;
+  width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 10px;
+  gap:10px;
 }
 
 #category-select {
   width: 100px;
-  padding: 2px 2px;
+  padding: 10px 5px;
   border-radius: 12px;
   border: none;
   outline: none;
@@ -106,7 +106,6 @@ h1 {
   cursor: pointer;
 }
 
-/* опції (може виглядати по-різному в браузерах) */
 #category-select option {
   color: black;
 }
@@ -131,8 +130,7 @@ h1 {
 
 .controls {
   display: flex;
-  gap: 15px;
-  margin: 2px;
+  gap: 10px;
   justify-content: center;
   align-items: center;
 }
@@ -176,8 +174,8 @@ h1 {
 }
 
 .start {
-  background: linear-gradient(145deg, #28a745, #1e7e34);
-  opacity: 0.7;
+  background: linear-gradient(145deg, #5e5cdb, #27208c);
+  opacity: 0.8;
   position: fixed;
   bottom: 50px;
   left: auto;
@@ -186,7 +184,7 @@ h1 {
 
 .stop {
   background: linear-gradient(145deg, #dccb35, #a7991d);
-  opacity: 0.7;
+  opacity: 0.8;
   position: fixed;
   bottom: 50px;
   left: auto;
@@ -194,7 +192,7 @@ h1 {
 }
 
 .chart {
-  background: linear-gradient(145deg, #a8aeee, #261da7);
+  background: linear-gradient(145deg, #8291f2, #261da7);
   width: clamp(40px, 15vw, 50px);
   height: clamp(40px, 15vw, 50px);
   font-size: clamp(18px, 5vw, 24px);
@@ -220,32 +218,66 @@ h1 {
 
 .total__info {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: bolder;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-#total__span {
+.total__info_1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: clamp(36px, 8vw, 42px);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  font-weight: 700;
+}
+
+.total__span_1 {
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.total__span_2 {
   font-size: 2rem;
   font-weight: 600;
   opacity: 0.8;
   color: #e1f24c;
 }
 
-#prev__span {
-  font-size: 0.8rem;
+.total__info_2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.prev__span_1 {
+  font-size: 1rem;
   font-weight: 600;
   opacity: 0.8;
   color: #f7f7f1;
+}
+
+.prev__span_2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  opacity: 0.8;
+  color: #bac0e6;
+    font-family: "Inter", "Segoe UI", sans-serif;
+  font-weight: 700;
+}
 }
 
 /* ==============================items===============================*/
 
 .sessions {
   width: 90%;
-  margin-top: 180px;
+  margin-top: 160px;
 }
 
 #session-container {
