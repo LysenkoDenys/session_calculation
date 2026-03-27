@@ -39,20 +39,61 @@ function getDayformatDate(ms) {
   return `${y}-${mo}-${d}`;
 }
 
-function updateButtons(state) {
-  const start = document.getElementById("start-button");
-  const stop = document.getElementById("stop-button");
+const toggleBtn = document.getElementById("toggle-button");
+const toggleIcon = document.getElementById("toggle-icon");
 
-  if (state === "idle") {
-    start.disabled = false;
-    stop.disabled = true;
-  }
+function isRunning() {
+  return !!localStorage.getItem("activeSession");
+}
 
-  if (state === "running") {
-    start.disabled = true;
-    stop.disabled = false;
+function updateToggleButton() {
+  if (isRunning()) {
+    toggleBtn.classList.remove("start");
+    toggleBtn.classList.add("stop");
+    toggleIcon.className = "fa-solid fa-stop";
+  } else {
+    toggleBtn.classList.remove("stop");
+    toggleBtn.classList.add("start");
+    toggleIcon.className = "fa-solid fa-play";
   }
 }
+
+toggleBtn.onclick = () => {
+  if (!isRunning()) {
+    // START
+    const category = select.value || "other";
+
+    const session = {
+      start: Date.now(),
+      category,
+    };
+
+    localStorage.setItem("activeSession", JSON.stringify(session));
+    localStorage.setItem("lastCategory", category);
+
+    timer.classList.add("running");
+    startTimerUI(session.start);
+  } else {
+    // STOP
+    const session = JSON.parse(localStorage.getItem("activeSession"));
+    const end = Date.now();
+    const duration = end - session.start;
+
+    const sessions = getSessions();
+
+    sessions.push({ ...session, end, duration });
+    localStorage.setItem("sessions", JSON.stringify(sessions));
+    localStorage.removeItem("activeSession");
+
+    timer.classList.remove("running");
+
+    resetUI();
+    renderTotal();
+    populateSessions();
+  }
+
+  updateToggleButton();
+};
 
 function populateCategories() {
   select.innerHTML = "";
@@ -160,8 +201,8 @@ function renderTotal() {
   const prev = getTotalPrevDayTime();
 
   nodeTotal.innerHTML = `
-  <div>🟢 Current: <span id=total__span>${total}</span></div>
-  <div>⚪ Previous: <span id=prev__span>${prev}</span></div>
+  <div>Cur: <span id=total__span>${total}</span></div>
+  <div>Prev: <span id=prev__span>${prev}</span></div>
 `;
   nodeTotal.className = "total__info";
 }
@@ -183,67 +224,19 @@ function resetUI() {
   display.textContent = "00:00:00";
 }
 
-//START:
-document.getElementById("start-button").onclick = () => {
-  const category = select.value || "other";
-  const session = {
-    start: Date.now(),
-    category: category,
-  };
-
-  localStorage.setItem("activeSession", JSON.stringify(session));
-  localStorage.setItem("lastCategory", category);
-  timer.classList.add("running");
-
-  startTimerUI(session.start);
-  updateButtons("running");
-};
-
-//STOP:
-document.getElementById("stop-button").onclick = () => {
-  const session = JSON.parse(localStorage.getItem("activeSession"));
-
-  if (!session) return;
-
-  const end = Date.now();
-  const duration = end - session.start;
-
-  // session list:
-  const sessions = JSON.parse(localStorage.getItem("sessions") || "[]");
-
-  sessions.push({
-    ...session,
-    end,
-    duration,
-  });
-
-  localStorage.setItem("sessions", JSON.stringify(sessions));
-
-  console.log("Session:", { ...session, end, duration });
-
-  localStorage.removeItem("activeSession");
-  timer.classList.remove("running");
-
-  resetUI();
-  renderTotal();
-  populateSessions();
-  updateButtons("idle");
-};
-
 // RESTORE:
 window.addEventListener("load", () => {
-  const session = JSON.parse(localStorage.getItem("activeSession"));
   populateCategories();
   populateSessions();
 
+  const session = JSON.parse(localStorage.getItem("activeSession"));
+
   if (session) {
     timer.classList.add("running");
-
     startTimerUI(session.start);
-    updateButtons("running");
-  } else {
-    updateButtons("idle");
   }
+
+  updateToggleButton();
 });
 
 // REMOVE (todo: confirm window):

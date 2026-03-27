@@ -30,13 +30,20 @@ body {
 
 h1 {
   margin: 0;
+  padding: 0px;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background-color: #208115;
+  background-image: url("https://www.transparenttextures.com/patterns/basketball.png");
 }
 
 /* ==============================timer===============================*/
-
-.header {
-  position: sticky;
-}
 
 .timer {
   margin-top: 10px;
@@ -44,7 +51,7 @@ h1 {
 }
 
 #time-display {
-  font-size: clamp(42px, 8vw, 64px);
+  font-size: clamp(36px, 8vw, 42px);
   font-weight: 600;
   letter-spacing: 3px;
 
@@ -75,15 +82,15 @@ h1 {
 }
 
 .input-wrapper {
-  width: 100%;
+  width: 30%;
   display: flex;
   justify-content: center;
   margin-top: 10px;
 }
 
 #category-select {
-  width: 260px;
-  padding: 5px 12px;
+  width: 100px;
+  padding: 2px 2px;
   border-radius: 12px;
   border: none;
   outline: none;
@@ -124,9 +131,10 @@ h1 {
 
 .controls {
   display: flex;
-  gap: 20px;
-  margin: 10px;
+  gap: 15px;
+  margin: 2px;
   justify-content: center;
+  align-items: center;
 }
 @media (max-width: 480px) {
   .controls {
@@ -144,9 +152,9 @@ h1 {
 }
 
 .btn {
-  width: clamp(60px, 15vw, 70px);
-  height: clamp(60px, 15vw, 70px);
-  font-size: clamp(18px, 5vw, 24px);
+  width: clamp(80px, 15vw, 90px);
+  height: clamp(80px, 15vw, 90px);
+  font-size: clamp(42px, 10vw, 54px);
   border-radius: 50%;
   border: none;
   cursor: pointer;
@@ -169,18 +177,34 @@ h1 {
 
 .start {
   background: linear-gradient(145deg, #28a745, #1e7e34);
+  opacity: 0.7;
+  position: fixed;
+  bottom: 50px;
+  left: auto;
+  z-index: 100;
 }
 
 .stop {
-  background: linear-gradient(145deg, #dc3545, #a71d2a);
-}
-
-.delete {
-  background: linear-gradient(145deg, #d6626d, #7f101c);
+  background: linear-gradient(145deg, #dccb35, #a7991d);
+  opacity: 0.7;
+  position: fixed;
+  bottom: 50px;
+  left: auto;
+  z-index: 100;
 }
 
 .chart {
   background: linear-gradient(145deg, #a8aeee, #261da7);
+  width: clamp(40px, 15vw, 50px);
+  height: clamp(40px, 15vw, 50px);
+  font-size: clamp(18px, 5vw, 24px);
+}
+
+.delete {
+  background: linear-gradient(145deg, #d6626d, #7f101c);
+  width: clamp(40px, 15vw, 50px);
+  height: clamp(40px, 15vw, 50px);
+  font-size: clamp(18px, 5vw, 24px);
 }
 
 .btn:disabled {
@@ -197,6 +221,10 @@ h1 {
 .total__info {
   font-size: 1rem;
   font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 #total__span {
@@ -207,7 +235,7 @@ h1 {
 }
 
 #prev__span {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   opacity: 0.8;
   color: #f7f7f1;
@@ -217,6 +245,7 @@ h1 {
 
 .sessions {
   width: 90%;
+  margin-top: 180px;
 }
 
 #session-container {
@@ -257,7 +286,7 @@ h1 {
   justify-content: center;
   align-items: flex-start;
   gap: 2px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   opacity: 0.7;
   min-width: 0;
 }

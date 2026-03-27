@@ -22,22 +22,18 @@
   </head>
   <body>
     <div class="container">
+      <button id="toggle-button" class="btn start">
+        <i id="toggle-icon" class="fa-solid fa-play"></i>
+      </button>
       <div class="header">
         <div class="timer" id="timer">
           <h1 id="time-display">00:00:00</h1>
         </div>
         <div class="session-form">
-          <div class="input-wrapper">
-            <select id="category-select"></select>
-          </div>
           <div class="controls">
-            <button id="start-button" class="btn start">
-              <i class="fa-solid fa-play"></i>
-            </button>
-
-            <button id="stop-button" class="btn stop">
-              <i class="fa-solid fa-stop"></i>
-            </button>
+            <div class="input-wrapper">
+              <select id="category-select"></select>
+            </div>
 
             <button id="chart-button" class="btn chart">
               <i class="fa-solid fa-chart-column"></i>
