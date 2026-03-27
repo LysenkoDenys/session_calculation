@@ -106,9 +106,8 @@ const getSessions = () => JSON.parse(localStorage.getItem("sessions") || "[]");
 const getLastDay = (sessionsList) =>
   getDayformatDate(Math.max(...sessionsList.map((el) => el.end)));
 
-const getSessionsForDay = (sessionsList) => {
-  const lastDay = getLastDay(sessionsList);
-  return sessionsList.filter((el) => getDayformatDate(el.end) === lastDay);
+const getSessionsForDay = (sessionsList, day) => {
+  return sessionsList.filter((el) => getDayformatDate(el.end) === day);
 };
 
 function getTotal(sessionsOfDay) {
@@ -122,34 +121,37 @@ function getTotal(sessionsOfDay) {
 function getTotalDayTime() {
   const sessionsList = getSessions();
   if (sessionsList.length === 0) return "00:00:00";
+  const day = getLastDay(sessionsList);
 
-  const sessionsOfDay = getSessionsForDay(sessionsList);
+  const sessionsOfDay = getSessionsForDay(sessionsList, day);
 
   const getTotalTime = getTotal(sessionsOfDay);
   return formatTime(getTotalTime);
 }
 
-// ========================================================================
 // THE PREV DAY:
 const getLastPrevDay = () => {
   const sessionsList = getSessions();
-  if (sessionsList.length === 0) return "00:00:00";
-  return Array.from(
+  const daysOfSessions = Array.from(
     new Set(sessionsList.map((el) => getDayformatDate(el.end))),
-  ).sort((a, b) => b - a)[1];
-};
+  );
+  if (sessionsList.length === 0) return "00:00:00";
+  if (daysOfSessions.length < 2) return "00:00:00";
 
-console.log(getLastPrevDay());
-// ========================================================================
+  return daysOfSessions.sort().reverse()[1];
+};
 
 // Total time of the previous session day:
 function getTotalPrevDayTime() {
   const sessionsList = getSessions();
   if (sessionsList.length === 0) return "00:00:00";
 
-  const sessionsOfDay = getSessionsForDay(sessionsList);
+  const prevDay = getLastPrevDay();
+  if (!prevDay) return "00:00:00";
 
-  const getTotalTime = getTotal(sessionsOfDay);
+  const sessionsOfPrevDay = getSessionsForDay(sessionsList, prevDay);
+
+  const getTotalTime = getTotal(sessionsOfPrevDay);
   return formatTime(getTotalTime);
 }
 
@@ -157,9 +159,11 @@ function renderTotal() {
   const total = getTotalDayTime();
   const prev = getTotalPrevDayTime();
 
-  nodeTotal.innerHTML = `Current: ${total} Previous: ${prev}`;
+  nodeTotal.innerHTML = `
+  <div>🟢 Current: <span id=total__span>${total}</span></div>
+  <div>⚪ Previous: <span id=prev__span>${prev}</span></div>
+`;
   nodeTotal.className = "total__info";
-  // sessionItem.appendChild(divInfo);
 }
 
 renderTotal();

@@ -22,32 +22,34 @@
   </head>
   <body>
     <div class="container">
-      <div class="timer" id="timer">
-        <h1 id="time-display">00:00:00</h1>
-      </div>
-      <div class="session-form">
-        <div class="input-wrapper">
-          <select id="category-select"></select>
+      <div class="header">
+        <div class="timer" id="timer">
+          <h1 id="time-display">00:00:00</h1>
         </div>
-        <div class="controls">
-          <button id="start-button" class="btn start">
-            <i class="fa-solid fa-play"></i>
-          </button>
+        <div class="session-form">
+          <div class="input-wrapper">
+            <select id="category-select"></select>
+          </div>
+          <div class="controls">
+            <button id="start-button" class="btn start">
+              <i class="fa-solid fa-play"></i>
+            </button>
 
-          <button id="stop-button" class="btn stop">
-            <i class="fa-solid fa-stop"></i>
-          </button>
+            <button id="stop-button" class="btn stop">
+              <i class="fa-solid fa-stop"></i>
+            </button>
 
-          <button id="chart-button" class="btn chart">
-            <i class="fa-solid fa-chart-column"></i>
-          </button>
+            <button id="chart-button" class="btn chart">
+              <i class="fa-solid fa-chart-column"></i>
+            </button>
 
-          <button id="delete-button" class="btn delete">
-            <i class="fa-solid fa-trash"></i>
-          </button>
+            <button id="delete-button" class="btn delete">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
         </div>
+        <div id="total"></div>
       </div>
-      <div id="total"></div>
       <div class="sessions">
         <div id="session-container"></div>
       </div>

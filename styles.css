@@ -33,6 +33,11 @@ h1 {
 }
 
 /* ==============================timer===============================*/
+
+.header {
+  position: sticky;
+}
+
 .timer {
   margin-top: 10px;
   text-align: center;
@@ -189,9 +194,23 @@ h1 {
   box-shadow: 0 0 20px #28a745;
 }
 
-total__info {
+.total__info {
   font-size: 1rem;
   font-weight: 600;
+}
+
+#total__span {
+  font-size: 2rem;
+  font-weight: 600;
+  opacity: 0.8;
+  color: #e1f24c;
+}
+
+#prev__span {
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.8;
+  color: #f7f7f1;
 }
 
 /* ==============================items===============================*/
