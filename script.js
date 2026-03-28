@@ -275,28 +275,45 @@ function closeModal() {
 }
 
 // 📊 CHART:
-document.getElementById("chart-button").onclick = renderChart;
+
+function getLast7Days() {
+  const days = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+
+    const formatted = getDayformatDate(d.getTime());
+    days.push(formatted);
+  }
+
+  return days;
+}
 
 function getDailyTotals() {
   const sessions = getSessions();
-
   const map = {};
-
   sessions.forEach((s) => {
     const day = getDayformatDate(s.end);
     map[day] = (map[day] || 0) + s.duration;
   });
-
   return map;
+}
+
+function getChartData() {
+  const totals = getDailyTotals();
+  const days = getLast7Days();
+
+  const labels = days.map((d) => d.slice(5)); // MM-DD
+  const values = days.map((d) => Math.floor((totals[d] || 0) / 1000 / 60));
+
+  return { labels, values };
 }
 
 let chart;
 
 function renderChart() {
-  const data = getDailyTotals();
-
-  const labels = Object.keys(data).sort();
-  const values = labels.map((d) => Math.floor(data[d] / 1000 / 60));
+  const { labels, values } = getChartData();
 
   const ctx = document.getElementById("chart");
 
@@ -308,10 +325,92 @@ function renderChart() {
       labels,
       datasets: [
         {
-          label: "Minutes per day",
+          label: "Minutes",
           data: values,
+
+          // 🎨 бари
+          backgroundColor: labels.map((_, i) =>
+            i === labels.length - 1 ? "#eaed26" : "#4f46e5",
+          ),
+          borderRadius: 5,
+          barThickness: 20,
+
+          // hover ефект
+          hoverBackgroundColor: "#6366f1",
         },
       ],
     },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+
+      layout: {
+        padding: 10,
+      },
+
+      plugins: {
+        legend: {
+          display: false,
+        },
+
+        tooltip: {
+          backgroundColor: "#111",
+          titleColor: "#fff",
+          bodyColor: "#ccc",
+          borderColor: "#333",
+          borderWidth: 1,
+          padding: 10,
+          cornerRadius: 8,
+
+          callbacks: {
+            label: function (context) {
+              return `${context.raw} min`;
+            },
+          },
+        },
+      },
+
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            color: "#bcbcbc",
+            font: {
+              size: 12,
+            },
+          },
+        },
+
+        y: {
+          beginAtZero: true,
+
+          grid: {
+            color: "rgba(255,255,255,0.05)",
+          },
+
+          ticks: {
+            color: "#bcbcbc",
+            callback: function (value) {
+              return value + "m";
+            },
+          },
+        },
+      },
+    },
   });
 }
+
+const chartModal = document.getElementById("chart-modal");
+
+document.getElementById("chart-button").onclick = () => {
+  chartModal.classList.remove("hidden");
+  renderChart();
+};
+
+chartModal.addEventListener("click", (e) => {
+  if (e.target === chartModal) {
+    chartModal.classList.add("hidden");
+  }
+});

@@ -394,3 +394,11 @@ h1 {
 #cancel-delete:hover {
   background: rgba(255,255,255,0.2);
 }
+
+
+/* ==============================chart===============================*/
+.chart-modal-content {
+  width: 95%;
+  max-width: 400px;
+  max-height: 300px;
+}
