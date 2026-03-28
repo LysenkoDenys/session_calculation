@@ -121,27 +121,17 @@ function populateSessions() {
   [...sessionsList].reverse().forEach((item) => {
     const sessionItem = document.createElement("div");
     sessionItem.className = "session-item";
-    // ===========================================================
-    // const inner = document.createElement("div");
-    // inner.className = "session-inner";
-
-    // const deleteBtn = document.createElement("button");
-    // deleteBtn.className = "session-delete";
-    // deleteBtn.textContent = "Delete";
-    // ===========================================================
     const topRow = document.createElement("div");
     topRow.className = "session-item__top";
     const divCategory = document.createElement("div");
     divCategory.innerHTML = `${item.category}:`;
     divCategory.className = "session-item__category";
     topRow.appendChild(divCategory);
-    // inner.appendChild(topRow);
     sessionItem.appendChild(topRow);
 
     const divInfo = document.createElement("div");
     divInfo.innerHTML = `${formatDate(item.start)} - ${formatDate(item.end)}`;
     divInfo.className = "session-item__info";
-    // inner.appendChild(divInfo);
     sessionItem.appendChild(divInfo);
 
     const divDur = document.createElement("div");
@@ -149,12 +139,66 @@ function populateSessions() {
     divDur.className = "session-item__duration";
     topRow.appendChild(divDur);
 
+    // delete the item by left swipe:
+    let startX = 0;
+    let endX = 0;
+    sessionItem.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    });
+
+    sessionItem.addEventListener("touchend", (e) => {
+      endX = e.changedTouches[0].clientX;
+
+      const diff = endX - startX;
+
+      if (diff < -60) {
+        // left swipe
+        openDeleteModal(item);
+      }
+    });
     nodeSessionsList.appendChild(sessionItem);
-    // sessionItem.appendChild(deleteBtn);
-    // sessionItem.appendChild(inner);
-    // nodeSessionsList.appendChild(sessionItem);
   });
 }
+
+// DELETE one session:
+const modalDeleteOne = document.getElementById("modal-delete-one");
+let sessionToDelete = null;
+
+function openDeleteModal(session) {
+  sessionToDelete = session;
+  modalDeleteOne.classList.remove("hidden");
+}
+
+document.getElementById("confirm-delete-one").onclick = () => {
+  if (!sessionToDelete) return;
+
+  const sessions = getSessions();
+
+  const updated = sessions.filter((s) => s.start !== sessionToDelete.start);
+
+  localStorage.setItem("sessions", JSON.stringify(updated));
+
+  sessionToDelete = null;
+
+  modalDeleteOne.classList.add("hidden");
+
+  populateSessions();
+  renderTotal();
+};
+
+document.getElementById("cancel-delete-one").onclick = () => {
+  modalDeleteOne.classList.add("hidden");
+};
+
+function setupModalClose(modal) {
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
+}
+
+setupModalClose(modalDeleteOne);
+
+// =========================================================================
 
 const getSessions = () => JSON.parse(localStorage.getItem("sessions") || "[]");
 
@@ -254,39 +298,33 @@ window.addEventListener("load", () => {
 });
 
 // REMOVE all the data:
-const modal = document.getElementById("modal");
-
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    closeModal();
-  }
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    closeModal();
-  }
-});
+const modalDeleteAll = document.getElementById("modal-delete-all");
 
 document.getElementById("delete-button").onclick = () => {
-  modal.classList.remove("hidden");
+  modalDeleteAll.classList.remove("hidden");
 };
 
-document.getElementById("cancel-delete").onclick = () => {
-  modal.classList.add("hidden");
+document.getElementById("cancel-delete-all").onclick = () => {
+  modalDeleteAll.classList.add("hidden");
 };
 
-document.getElementById("confirm-delete").onclick = () => {
+document.getElementById("confirm-delete-all").onclick = () => {
   localStorage.clear();
-  modal.classList.add("hidden");
+
+  modalDeleteAll.classList.add("hidden");
 
   populateSessions();
   renderTotal();
 };
 
-function closeModal() {
-  modal.classList.add("hidden");
-}
+setupModalClose(modalDeleteAll);
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    modalDeleteAll.classList.add("hidden");
+    modalDeleteOne.classList.add("hidden");
+  }
+});
 
 // 📊 CHART:
 

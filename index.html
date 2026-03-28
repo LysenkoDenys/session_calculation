@@ -27,11 +27,23 @@
         <canvas id="chart"></canvas>
       </div>
     </div>
-    <div id="modal" class="modal hidden">
+    <!-- DELETE ONE SESSION -->
+    <div id="modal-delete-one" class="modal hidden">
+      <div class="modal-content">
+        <p>Delete this session?</p>
+
+        <div class="modal-actions">
+          <button id="confirm-delete-one">Yes</button>
+          <button id="cancel-delete-one">No</button>
+        </div>
+      </div>
+    </div>
+    <!-- DELETE ALL SESSIONS -->
+    <div id="modal-delete-all" class="modal hidden">
       <div class="modal-content">
         <p>Delete all data?</p>
-        <button id="confirm-delete">Yes</button>
-        <button id="cancel-delete">No</button>
+        <button id="confirm-delete-all">Yes</button>
+        <button id="cancel-delete-all">No</button>
       </div>
     </div>
     <div class="container">

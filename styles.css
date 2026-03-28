@@ -85,7 +85,7 @@ h1 {
   width: 100%;
   display: flex;
   justify-content: center;
-  gap:10px;
+  gap: 10px;
 }
 
 #category-select {
@@ -218,7 +218,8 @@ h1 {
   align-items: center;
 }
 
-.total__info_1,.total__info_2 {
+.total__info_1,
+.total__info_2 {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -257,9 +258,8 @@ h1 {
   font-weight: 600;
   opacity: 0.8;
   color: #bac0e6;
-    font-family: "Inter", "Segoe UI", sans-serif;
+  font-family: "Inter", "Segoe UI", sans-serif;
   font-weight: 700;
-}
 }
 
 /* ==============================items===============================*/
@@ -323,7 +323,7 @@ h1 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -346,7 +346,7 @@ h1 {
 
   text-align: center;
 
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 
   transform: scale(1);
   transition: transform 0.25s ease;
@@ -387,14 +387,13 @@ h1 {
 }
 
 #cancel-delete {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
 #cancel-delete:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
-
 
 /* ==============================chart===============================*/
 .chart-modal-content {
@@ -402,6 +401,5 @@ h1 {
   max-width: 400px;
   max-height: 300px;
 }
-
 
 /* ==============================swipe===============================*/
