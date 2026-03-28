@@ -174,7 +174,7 @@ h1 {
 }
 
 .start {
-  background: linear-gradient(145deg, #5e5cdb, #27208c);
+  background: linear-gradient(145deg, #b0afed, #655dcd);
   opacity: 0.9;
   position: fixed;
   bottom: 50px;
@@ -192,7 +192,7 @@ h1 {
 }
 
 .chart {
-  background: linear-gradient(145deg, #8291f2, #261da7);
+  background: linear-gradient(145deg, #88f282, #2ba71d);
   width: clamp(40px, 15vw, 50px);
   height: clamp(40px, 15vw, 50px);
   font-size: clamp(18px, 5vw, 24px);
@@ -402,3 +402,6 @@ h1 {
   max-width: 400px;
   max-height: 300px;
 }
+
+
+/* ==============================swipe===============================*/

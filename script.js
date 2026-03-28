@@ -121,24 +121,38 @@ function populateSessions() {
   [...sessionsList].reverse().forEach((item) => {
     const sessionItem = document.createElement("div");
     sessionItem.className = "session-item";
+    // ===========================================================
+    // const inner = document.createElement("div");
+    // inner.className = "session-inner";
+
+    // const deleteBtn = document.createElement("button");
+    // deleteBtn.className = "session-delete";
+    // deleteBtn.textContent = "Delete";
+    // ===========================================================
     const topRow = document.createElement("div");
     topRow.className = "session-item__top";
     const divCategory = document.createElement("div");
     divCategory.innerHTML = `${item.category}:`;
     divCategory.className = "session-item__category";
     topRow.appendChild(divCategory);
+    // inner.appendChild(topRow);
     sessionItem.appendChild(topRow);
 
     const divInfo = document.createElement("div");
     divInfo.innerHTML = `${formatDate(item.start)} - ${formatDate(item.end)}`;
     divInfo.className = "session-item__info";
+    // inner.appendChild(divInfo);
     sessionItem.appendChild(divInfo);
 
     const divDur = document.createElement("div");
     divDur.innerHTML = `${formatTime(item.duration)}`;
     divDur.className = "session-item__duration";
     topRow.appendChild(divDur);
+
     nodeSessionsList.appendChild(sessionItem);
+    // sessionItem.appendChild(deleteBtn);
+    // sessionItem.appendChild(inner);
+    // nodeSessionsList.appendChild(sessionItem);
   });
 }
 
