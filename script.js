@@ -239,12 +239,79 @@ window.addEventListener("load", () => {
   updateToggleButton();
 });
 
-// REMOVE (todo: confirm window):
+// REMOVE all the data:
+const modal = document.getElementById("modal");
+
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    closeModal();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeModal();
+  }
+});
+
 document.getElementById("delete-button").onclick = () => {
-  alert("all the data will be deleted");
-  localStorage.clear();
-  renderTotal();
-  populateSessions();
+  modal.classList.remove("hidden");
 };
 
-console.log(formatDate(1774074291471));
+document.getElementById("cancel-delete").onclick = () => {
+  modal.classList.add("hidden");
+};
+
+document.getElementById("confirm-delete").onclick = () => {
+  localStorage.clear();
+  modal.classList.add("hidden");
+
+  populateSessions();
+  renderTotal();
+};
+
+function closeModal() {
+  modal.classList.add("hidden");
+}
+
+// 📊 CHART:
+document.getElementById("chart-button").onclick = renderChart;
+
+function getDailyTotals() {
+  const sessions = getSessions();
+
+  const map = {};
+
+  sessions.forEach((s) => {
+    const day = getDayformatDate(s.end);
+    map[day] = (map[day] || 0) + s.duration;
+  });
+
+  return map;
+}
+
+let chart;
+
+function renderChart() {
+  const data = getDailyTotals();
+
+  const labels = Object.keys(data).sort();
+  const values = labels.map((d) => Math.floor(data[d] / 1000 / 60));
+
+  const ctx = document.getElementById("chart");
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Minutes per day",
+          data: values,
+        },
+      ],
+    },
+  });
+}

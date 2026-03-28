@@ -150,9 +150,9 @@ h1 {
 }
 
 .btn {
-  width: clamp(80px, 15vw, 90px);
-  height: clamp(80px, 15vw, 90px);
-  font-size: clamp(42px, 10vw, 54px);
+  width: clamp(50px, 15vw, 60px);
+  height: clamp(50px, 15vw, 60px);
+  font-size: clamp(18px, 5vw, 32px);
   border-radius: 50%;
   border: none;
   cursor: pointer;
@@ -175,7 +175,7 @@ h1 {
 
 .start {
   background: linear-gradient(145deg, #5e5cdb, #27208c);
-  opacity: 0.8;
+  opacity: 0.9;
   position: fixed;
   bottom: 50px;
   left: auto;
@@ -184,7 +184,7 @@ h1 {
 
 .stop {
   background: linear-gradient(145deg, #dccb35, #a7991d);
-  opacity: 0.8;
+  opacity: 0.9;
   position: fixed;
   bottom: 50px;
   left: auto;
@@ -205,13 +205,6 @@ h1 {
   font-size: clamp(18px, 5vw, 24px);
 }
 
-.btn:disabled {
-  background: #555;
-  cursor: not-allowed;
-  transform: none;
-  opacity: 0.6;
-}
-
 .start.active {
   box-shadow: 0 0 20px #28a745;
 }
@@ -225,15 +218,11 @@ h1 {
   align-items: center;
 }
 
-.total__info_1 {
+.total__info_1,.total__info_2 {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  margin: 0;
-  font-size: clamp(36px, 8vw, 42px);
-  font-family: "Inter", "Segoe UI", sans-serif;
-  font-weight: 700;
 }
 
 .total__span_1 {
@@ -277,15 +266,14 @@ h1 {
 
 .sessions {
   width: 90%;
-  margin-top: 160px;
 }
 
 #session-container {
-  margin-top: 10px;
   display: flex;
   flex-direction: column;
   max-width: 100%;
   gap: 5px;
+  margin-top: 160px;
 }
 
 .session-item {
@@ -326,4 +314,83 @@ h1 {
 .session-item__duration {
   font-size: clamp(20px, 5vw, 28px);
   font-weight: bold;
+}
+
+/* ==============================modal===============================*/
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: linear-gradient(145deg, #615f5f, #1c1c1c);
+  color: white;
+
+  padding: 14px 1%;
+  border-radius: 16px;
+
+  width: 90%;
+  max-width: 300px;
+
+  text-align: center;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+  transform: scale(1);
+  transition: transform 0.25s ease;
+}
+
+/* анімація при hidden */
+.hidden .modal-content {
+  transform: scale(0.9);
+}
+
+.modal-content p {
+  margin: 0px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.modal-content button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+
+  font-size: 14px;
+  cursor: pointer;
+
+  margin: 5px;
+  min-width: 80px;
+
+  transition: all 0.2s ease;
+}
+
+#confirm-delete {
+  background: linear-gradient(145deg, #dc3545, #a71d2a);
+  color: white;
+}
+
+#confirm-delete:hover {
+  transform: scale(1.05);
+}
+
+#cancel-delete {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+#cancel-delete:hover {
+  background: rgba(255,255,255,0.2);
 }
