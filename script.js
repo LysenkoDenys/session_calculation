@@ -141,20 +141,69 @@ function populateSessions() {
 
     // delete the item by left swipe:
     let startX = 0;
-    let endX = 0;
+    let startY = 0;
+    let currentX = 0;
+    let hasVibrated = false;
+
+    sessionItem.addEventListener("touchmove", (e) => {
+      const moveX = e.touches[0].clientX;
+      currentX = moveX - startX;
+
+      //move left only + constraint:
+      if (currentX < 0) {
+        const limitedX = Math.max(currentX, -100);
+        sessionItem.style.transform = `translateX(${limitedX}px)`;
+        // opacity effect:
+        const opacity = 1 + limitedX / 200;
+        sessionItem.style.opacity = opacity;
+      }
+      // vibration:
+      if (currentX < -80 && !hasVibrated) {
+        navigator.vibrate?.(30);
+        hasVibrated = true;
+      }
+    });
+
     sessionItem.addEventListener("touchstart", (e) => {
       startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      sessionItem.style.transition = "none";
     });
 
     sessionItem.addEventListener("touchend", (e) => {
-      endX = e.changedTouches[0].clientX;
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
 
-      const diff = endX - startX;
+      const diffX = endX - startX;
+      const diffY = endY - startY;
 
-      if (diff < -60) {
-        // left swipe
-        openDeleteModal(item);
+      // return animation
+      sessionItem.style.transition = "transform 0.2s ease";
+
+      // якщо це не горизонтальний свайп → просто назад
+      if (Math.abs(diffY) > 30) {
+        sessionItem.style.transform = "translateX(0)";
+        sessionItem.style.opacity = "1";
+        hasVibrated = false; // ✅
+        return;
       }
+
+      // swipe enougth:
+      if (diffX < -80) {
+        sessionItem.style.transform = "translateX(-100%)";
+        sessionItem.style.opacity = "1";
+
+        // невелика затримка для ефекту
+        setTimeout(() => {
+          openDeleteModal(item);
+          sessionItem.style.transform = "translateX(0)";
+        }, 150);
+      } else {
+        // wipe is not enougth --> backward:
+        sessionItem.style.transform = "translateX(0)";
+        sessionItem.style.opacity = "1";
+      }
+      hasVibrated = false;
     });
     nodeSessionsList.appendChild(sessionItem);
   });
@@ -466,3 +515,53 @@ chartModal.addEventListener("click", (e) => {
     chartModal.classList.add("hidden");
   }
 });
+
+// Export:
+document.getElementById("export-button").onclick = exportData;
+
+function exportData() {
+  const data = JSON.stringify(getSessions(), null, 2);
+
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sessions.json";
+  a.click();
+}
+
+// Import:
+document.getElementById("import-button").onclick = () => {
+  document.getElementById("import-input").click();
+};
+
+document.getElementById("import-input").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    importData(file);
+  }
+});
+
+function importData(file) {
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+
+      if (!Array.isArray(parsed)) {
+        throw new Error("Invalid format");
+      }
+      if (!confirm("Replace current data?")) return;
+      localStorage.setItem("sessions", JSON.stringify(parsed));
+
+      populateSessions();
+      renderTotal();
+    } catch (err) {
+      alert("Invalid file");
+    }
+  };
+
+  reader.readAsText(file);
+}

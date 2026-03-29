@@ -58,6 +58,7 @@ h1 {
   font-family: "Inter", "Segoe UI", sans-serif;
 
   background: linear-gradient(90deg, #ffffff, #c8ffc8);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
@@ -286,6 +287,7 @@ h1 {
   flex-direction: column;
   flex-wrap: wrap;
   gap: 2px;
+  transition: transform 0.2s ease;
 }
 
 .session-item__top {

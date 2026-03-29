@@ -22,17 +22,15 @@ https://sec2go.vercel.app/
 
 ## TODO:
 
-<p> 1) by default if no session name -> other-2026-03-17_16:52</p>
-<p> 2) statistic day by day 7 days</p>
+<p> 1) </p>
+<p> 2) </p>
 <p> 3) notification 👉 показувати: “Session is running…” Service Worker PWA</p>
-<p> 4) зробимо “Today total time” з кольоровими сегментами по категоріях</p>
-<p> 5) зробити видалення сесій (swipe to the left)</p>
+<p> 4) </p>
+<p> 5) ✔️ видалення сесій (swipe to the left)</p>
 <p> 6) ✔️ покращено UI підтягується остання категорія яку стартували автоматично (не треба кожного разу вибирати)</p>
-<p> 7) add chart button (and chart itself) </p>
+<p> 7) add chart with categories 7 days</p>
 
 <!-- Можу допомогти додати:
-
-📊 графік (ти вже маєш кнопку)
 📅 фільтр по датах
 ☁️ sync (щоб не втрачати дані)
 📱 PWA (щоб як app)
