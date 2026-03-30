@@ -1,4 +1,10 @@
 const categories = ["work", "study", "exercise", "other"];
+const colors = {
+  work: "#4f46e5",
+  study: "#22c55e",
+  exercise: "#f97316",
+  other: "#6b7280",
+};
 
 let interval = null;
 const timer = document.getElementById("timer");
@@ -414,7 +420,7 @@ function getChartData() {
 let chart;
 
 function renderChart() {
-  const { labels, values } = getChartData();
+  const { labels, datasets } = getStackedChartData();
 
   const ctx = document.getElementById("chart");
 
@@ -424,22 +430,7 @@ function renderChart() {
     type: "bar",
     data: {
       labels,
-      datasets: [
-        {
-          label: "Minutes",
-          data: values,
-
-          // 🎨 бари
-          backgroundColor: labels.map((_, i) =>
-            i === labels.length - 1 ? "#eaed26" : "#4f46e5",
-          ),
-          borderRadius: 5,
-          barThickness: 20,
-
-          // hover ефект
-          hoverBackgroundColor: "#6366f1",
-        },
-      ],
+      datasets,
     },
     options: {
       responsive: true,
@@ -451,7 +442,7 @@ function renderChart() {
 
       plugins: {
         legend: {
-          display: false,
+          display: true,
         },
 
         tooltip: {
@@ -473,29 +464,22 @@ function renderChart() {
 
       scales: {
         x: {
-          grid: {
-            display: false,
-          },
+          stacked: true,
+          grid: { display: false },
           ticks: {
             color: "#bcbcbc",
-            font: {
-              size: 12,
-            },
           },
         },
 
         y: {
+          stacked: true,
           beginAtZero: true,
-
           grid: {
             color: "rgba(255,255,255,0.05)",
           },
-
           ticks: {
             color: "#bcbcbc",
-            callback: function (value) {
-              return value + "m";
-            },
+            callback: (v) => v + "m",
           },
         },
       },
@@ -564,4 +548,43 @@ function importData(file) {
   };
 
   reader.readAsText(file);
+}
+
+// new chart with categories:=====================================
+function getDailyByCategory() {
+  const sessions = getSessions();
+  const map = {};
+
+  sessions.forEach((s) => {
+    const day = getDayformatDate(s.end);
+    let category = s.category;
+
+    if (!map[day]) {
+      map[day] = {};
+    }
+
+    if (!map[day][category]) {
+      map[day][category] = 0;
+    }
+
+    map[day][category] += s.duration;
+  });
+
+  return map;
+}
+
+function getStackedChartData() {
+  const data = getDailyByCategory();
+  const days = getLast7Days();
+
+  const datasets = categories.map((cat) => {
+    return {
+      label: cat,
+      data: days.map((day) => Math.floor((data[day]?.[cat] || 0) / 1000 / 60)),
+    };
+  });
+
+  const labels = days.map((d) => d.slice(5)); // MM-DD
+
+  return { labels, datasets };
 }
