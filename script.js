@@ -580,6 +580,7 @@ function getStackedChartData() {
   const datasets = categories.map((cat) => {
     return {
       label: cat,
+      backgroundColor: colors[cat],
       data: days.map((day) => Math.floor((data[day]?.[cat] || 0) / 1000 / 60)),
     };
   });

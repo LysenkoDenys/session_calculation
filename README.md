@@ -28,7 +28,7 @@ https://sec2go.vercel.app/
 <p> 4) </p>
 <p> 5) ✔️ видалення сесій (swipe to the left)</p>
 <p> 6) ✔️ покращено UI підтягується остання категорія яку стартували автоматично (не треба кожного разу вибирати)</p>
-<p> 7) add chart with categories 7 days</p>
+<p> 7) ✔️ add chart with categories 7 days</p>
 
 <!-- Можу допомогти додати:
 📅 фільтр по датах
