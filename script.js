@@ -12,8 +12,21 @@ const display = document.getElementById("time-display");
 const select = document.getElementById("category-select");
 const nodeSessionsList = document.getElementById("session-container");
 const nodeTotal = document.getElementById("total");
+const settingsBtn = document.getElementById("settings-button");
+const settingsMenu = document.getElementById("settings-menu");
 
 // helpers:
+settingsBtn.onclick = () => {
+  settingsMenu.classList.toggle("hidden");
+};
+
+document.addEventListener("click", (e) => {
+  if (!settingsMenu.contains(e.target) && !settingsBtn.contains(e.target)) {
+    settingsMenu.classList.add("hidden");
+  }
+});
+// =========================================================================
+
 function formatTime(ms) {
   const totalSeconds = Math.floor(ms / 1000);
   const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
@@ -252,8 +265,6 @@ function setupModalClose(modal) {
 }
 
 setupModalClose(modalDeleteOne);
-
-// =========================================================================
 
 const getSessions = () => JSON.parse(localStorage.getItem("sessions") || "[]");
 

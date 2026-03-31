@@ -63,7 +63,21 @@
             <button id="chart-button" class="btn chart">
               <i class="fa-solid fa-chart-column"></i>
             </button>
-
+            <button id="settings-button" class="btn settings">
+              <i class="fa-solid fa-gear"></i>
+            </button>
+            <div id="settings-menu" class="settings-menu hidden">
+              <button id="export-button">Export</button>
+              <input
+                type="file"
+                id="import-input"
+                accept="application/json"
+                hidden
+              />
+              <button id="import-button">Import</button>
+              <button id="delete-button">Delete all</button>
+            </div>
+            <!-- 
             <button id="delete-button" class="btn delete">
               <i class="fa-solid fa-trash"></i>
             </button>
@@ -74,7 +88,7 @@
               accept="application/json"
               hidden
             />
-            <button id="import-button">Import</button>
+            <button id="import-button">Import</button> -->
           </div>
         </div>
         <div id="total"></div>
