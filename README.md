@@ -22,7 +22,7 @@ https://sec2go.vercel.app/
 
 ## TODO:
 
-<p> 1) </p>
+<p> 1) add tips to the buttons and menues</p>
 <p> 2) </p>
 <p> 3) notification 👉 показувати: “Session is running…” Service Worker PWA</p>
 <p> 4) </p>
