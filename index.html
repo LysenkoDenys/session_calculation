@@ -7,8 +7,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="description" content="session calculator" />
-    <title>session calculator</title>
+    <meta name="description" content="tracker" />
+    <title>tracker</title>
     <link rel="stylesheet" href="styles.css" />
     <link
       rel="stylesheet"
@@ -47,51 +47,55 @@
       </div>
     </div>
     <div class="container">
-      <button id="toggle-button" class="btn start">
+      <button
+        id="toggle-button"
+        class="btn start"
+        aria-label="start-button"
+        title="start/stop"
+      >
         <i id="toggle-icon" class="fa-solid fa-play"></i>
       </button>
 
       <div class="header">
-        <div class="timer" id="timer">
-          <h1 id="time-display">00:00:00</h1>
-        </div>
+        <div id="total"></div>
         <div class="session-form">
           <div class="input-wrapper">
             <select id="category-select"></select>
-            <!-- </div>
-          <div class="controls"> -->
-            <button id="chart-button" class="btn chart">
+
+            <button
+              id="chart-button"
+              class="btn chart"
+              aria-label="chart-button"
+              title="chart"
+            >
               <i class="fa-solid fa-chart-column"></i>
             </button>
-            <button id="settings-button" class="btn settings">
-              <i class="fa-solid fa-gear"></i>
-            </button>
-            <div id="settings-menu" class="settings-menu hidden">
-              <button id="export-button">Export</button>
-              <input
-                type="file"
-                id="import-input"
-                accept="application/json"
-                hidden
-              />
-              <button id="import-button">Import</button>
-              <button id="delete-button">Delete all</button>
+            <div class="settings-wrapper">
+              <button
+                id="settings-button"
+                class="btn settings"
+                aria-label="settings-button"
+                title="settings"
+              >
+                <i class="fa-solid fa-gear"></i>
+              </button>
+              <div id="settings-menu" class="settings-menu hidden">
+                <button id="export-button">Export</button>
+                <input
+                  type="file"
+                  id="import-input"
+                  accept="application/json"
+                  hidden
+                />
+                <button id="import-button">Import</button>
+                <button id="delete-button">Delete all</button>
+              </div>
             </div>
-            <!-- 
-            <button id="delete-button" class="btn delete">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-            <button id="export-button">Export</button>
-            <input
-              type="file"
-              id="import-input"
-              accept="application/json"
-              hidden
-            />
-            <button id="import-button">Import</button> -->
           </div>
         </div>
-        <div id="total"></div>
+        <div class="timer" id="timer">
+          <h1 id="time-display">00:00:00</h1>
+        </div>
       </div>
       <div class="sessions">
         <div id="session-container"></div>

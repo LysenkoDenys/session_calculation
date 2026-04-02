@@ -1,9 +1,9 @@
 const categories = ["work", "study", "exercise", "other"];
 const colors = {
   work: "#4f46e5",
-  study: "#22c55e",
+  study: "#4aed26",
   exercise: "#f97316",
-  other: "#6b7280",
+  other: "#f0e112",
 };
 
 let interval = null;
@@ -25,6 +25,22 @@ document.addEventListener("click", (e) => {
     settingsMenu.classList.add("hidden");
   }
 });
+// =========================================================================
+const StorageManager = {
+  getActiveSession() {
+    const session = localStorage.getItem("activeSession");
+    return session ? JSON.parse(session) : null;
+  },
+  setActiveSession() {
+    ocalStorage.setItem("activeSession", JSON.stringify(session));
+  },
+  removeActiveSession() {
+    localStorage.removeItem("activeSession");
+  },
+  getSessions() {
+    return JSON.parse(localStorage.getItem("sessions") || "[]");
+  },
+};
 // =========================================================================
 
 function formatTime(ms) {
@@ -170,7 +186,7 @@ function populateSessions() {
 
       //move left only + constraint:
       if (currentX < 0) {
-        const limitedX = Math.max(currentX, -100);
+        const limitedX = Math.max(currentX, -50);
         sessionItem.style.transform = `translateX(${limitedX}px)`;
         // opacity effect:
         const opacity = 1 + limitedX / 200;
@@ -428,14 +444,29 @@ function getChartData() {
   return { labels, values };
 }
 
+function createGradient(ctx, color) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+
+  gradient.addColorStop(0, color);
+  gradient.addColorStop(1, color + "CC");
+
+  return gradient;
+}
+
 let chart;
 
 function renderChart() {
   const { labels, datasets } = getStackedChartData();
 
-  const ctx = document.getElementById("chart");
+  const canvas = document.getElementById("chart");
+  const ctx = canvas.getContext("2d");
 
   if (chart) chart.destroy();
+
+  // 🔥 додаємо gradient до кожного dataset
+  datasets.forEach((ds) => {
+    ds.backgroundColor = createGradient(ctx, ds.backgroundColor);
+  });
 
   chart = new Chart(ctx, {
     type: "bar",
@@ -451,23 +482,39 @@ function renderChart() {
         padding: 10,
       },
 
+      animation: {
+        duration: 800,
+        easing: "easeOutQuart",
+      },
+
       plugins: {
         legend: {
-          display: true,
+          labels: {
+            color: "#ccc",
+            font: {
+              size: 10,
+              weight: "600",
+            },
+            padding: 10,
+            usePointStyle: true,
+            pointStyle: "rect",
+          },
         },
 
         tooltip: {
-          backgroundColor: "#111",
+          backgroundColor: "rgba(20,20,20,0.9)",
           titleColor: "#fff",
-          bodyColor: "#ccc",
-          borderColor: "#333",
+          bodyColor: "#aaa",
+          borderColor: "rgba(255,255,255,0.1)",
           borderWidth: 1,
-          padding: 10,
-          cornerRadius: 8,
+          padding: 12,
+          cornerRadius: 12,
+          displayColors: false,
 
           callbacks: {
-            label: function (context) {
-              return `${context.raw} min`;
+            title: (items) => `Day: ${items[0].label}`,
+            label: (context) => {
+              return `${context.dataset.label}: ${context.raw} min`;
             },
           },
         },
@@ -478,7 +525,12 @@ function renderChart() {
           stacked: true,
           grid: { display: false },
           ticks: {
-            color: "#bcbcbc",
+            color: "#aaa",
+            font: {
+              size: 8,
+              weight: "600",
+            },
+            padding: 5,
           },
         },
 
@@ -486,10 +538,10 @@ function renderChart() {
           stacked: true,
           beginAtZero: true,
           grid: {
-            color: "rgba(255,255,255,0.05)",
+            color: "rgba(255,255,255,0.03)",
           },
           ticks: {
-            color: "#bcbcbc",
+            color: "#888",
             callback: (v) => v + "m",
           },
         },
@@ -592,6 +644,7 @@ function getStackedChartData() {
     return {
       label: cat,
       backgroundColor: colors[cat],
+      barThickness: 25,
       data: days.map((day) => Math.floor((data[day]?.[cat] || 0) / 1000 / 60)),
     };
   });
