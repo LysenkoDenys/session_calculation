@@ -31,14 +31,26 @@ const StorageManager = {
     const session = localStorage.getItem("activeSession");
     return session ? JSON.parse(session) : null;
   },
-  setActiveSession() {
-    ocalStorage.setItem("activeSession", JSON.stringify(session));
+  setActiveSession(session) {
+    localStorage.setItem("activeSession", JSON.stringify(session));
   },
   removeActiveSession() {
     localStorage.removeItem("activeSession");
   },
   getSessions() {
     return JSON.parse(localStorage.getItem("sessions") || "[]");
+  },
+  setSessions(sessions) {
+    localStorage.setItem("sessions", JSON.stringify(sessions));
+  },
+  clearAll() {
+    localStorage.clear();
+  },
+  getLastCategory() {
+    return localStorage.getItem("lastCategory") || "other";
+  },
+  setLastCategory(category) {
+    localStorage.setItem("lastCategory", category);
   },
 };
 // =========================================================================
@@ -78,7 +90,7 @@ const toggleBtn = document.getElementById("toggle-button");
 const toggleIcon = document.getElementById("toggle-icon");
 
 function isRunning() {
-  return !!localStorage.getItem("activeSession");
+  return !!StorageManager.getActiveSession();
 }
 
 function updateToggleButton() {
@@ -103,8 +115,8 @@ toggleBtn.onclick = () => {
       category,
     };
 
-    localStorage.setItem("activeSession", JSON.stringify(session));
-    localStorage.setItem("lastCategory", category);
+    StorageManager.setActiveSession(session);
+    StorageManager.setLastCategory(category);
 
     timer.classList.add("running");
     startTimerUI(session.start);
@@ -114,11 +126,11 @@ toggleBtn.onclick = () => {
     const end = Date.now();
     const duration = end - session.start;
 
-    const sessions = getSessions();
-
+    const sessions = StorageManager.getSessions();
     sessions.push({ ...session, end, duration });
-    localStorage.setItem("sessions", JSON.stringify(sessions));
-    localStorage.removeItem("activeSession");
+
+    StorageManager.setSessions(sessions);
+    StorageManager.removeActiveSession();
 
     timer.classList.remove("running");
 
@@ -151,7 +163,7 @@ function populateCategories() {
 function populateSessions() {
   nodeSessionsList.innerHTML = "";
 
-  const sessionsList = JSON.parse(localStorage.getItem("sessions") || "[]");
+  const sessionsList = StorageManager.getSessions();
 
   [...sessionsList].reverse().forEach((item) => {
     const sessionItem = document.createElement("div");
@@ -256,7 +268,7 @@ function openDeleteModal(session) {
 document.getElementById("confirm-delete-one").onclick = () => {
   if (!sessionToDelete) return;
 
-  const sessions = getSessions();
+  const sessions = StorageManager.getSessions();
 
   const updated = sessions.filter((s) => s.start !== sessionToDelete.start);
 
@@ -282,7 +294,7 @@ function setupModalClose(modal) {
 
 setupModalClose(modalDeleteOne);
 
-const getSessions = () => JSON.parse(localStorage.getItem("sessions") || "[]");
+const getSessions = StorageManager.getSessions();
 
 const getLastDay = (sessionsList) =>
   getDayformatDate(Math.max(...sessionsList.map((el) => el.end)));
@@ -300,7 +312,7 @@ function getTotal(sessionsOfDay) {
 
 // Total time of the last session day:
 function getTotalDayTime() {
-  const sessionsList = getSessions();
+  const sessionsList = StorageManager.getSessions();
   if (sessionsList.length === 0) return "00:00:00";
   const day = getLastDay(sessionsList);
 
@@ -312,7 +324,7 @@ function getTotalDayTime() {
 
 // THE PREV DAY:
 const getLastPrevDay = () => {
-  const sessionsList = getSessions();
+  const sessionsList = StorageManager.getSessions();
   const daysOfSessions = Array.from(
     new Set(sessionsList.map((el) => getDayformatDate(el.end))),
   );
@@ -324,7 +336,7 @@ const getLastPrevDay = () => {
 
 // Total time of the previous session day:
 function getTotalPrevDayTime() {
-  const sessionsList = getSessions();
+  const sessionsList = StorageManager.getSessions();
   if (sessionsList.length === 0) return "00:00:00";
 
   const prevDay = getLastPrevDay();
@@ -425,7 +437,7 @@ function getLast7Days() {
 }
 
 function getDailyTotals() {
-  const sessions = getSessions();
+  const sessions = StorageManager.getSessions();
   const map = {};
   sessions.forEach((s) => {
     const day = getDayformatDate(s.end);
@@ -567,7 +579,7 @@ chartModal.addEventListener("click", (e) => {
 document.getElementById("export-button").onclick = exportData;
 
 function exportData() {
-  const data = JSON.stringify(getSessions(), null, 2);
+  const data = JSON.stringify(StorageManager.getSessions(), null, 2);
 
   const blob = new Blob([data], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -615,7 +627,7 @@ function importData(file) {
 
 // new chart with categories:=====================================
 function getDailyByCategory() {
-  const sessions = getSessions();
+  const sessions = StorageManager.getSessions();
   const map = {};
 
   sessions.forEach((s) => {
