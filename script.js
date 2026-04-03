@@ -25,7 +25,7 @@ document.addEventListener("click", (e) => {
     settingsMenu.classList.add("hidden");
   }
 });
-// =========================================================================
+
 const StorageManager = {
   getActiveSession() {
     const session = localStorage.getItem("activeSession");
@@ -53,7 +53,6 @@ const StorageManager = {
     localStorage.setItem("lastCategory", category);
   },
 };
-// =========================================================================
 
 function formatTime(ms) {
   const totalSeconds = Math.floor(ms / 1000);
@@ -122,12 +121,12 @@ toggleBtn.onclick = () => {
     startTimerUI(session.start);
   } else {
     // STOP
-    const session = JSON.parse(localStorage.getItem("activeSession"));
+    const session = StorageManager.getActiveSession();
     const end = Date.now();
     const duration = end - session.start;
 
     const sessions = StorageManager.getSessions();
-    sessions.push({ ...session, end, duration });
+    StorageManager.setSessions([...sessions, { ...session, end, duration }]);
 
     StorageManager.setSessions(sessions);
     StorageManager.removeActiveSession();
@@ -145,7 +144,7 @@ toggleBtn.onclick = () => {
 function populateCategories() {
   select.innerHTML = "";
 
-  const lastCategory = localStorage.getItem("lastCategory") || "other";
+  const lastCategory = StorageManager.getLastCategory();
 
   categories.forEach((cat) => {
     const option = document.createElement("option");
@@ -186,43 +185,43 @@ function populateSessions() {
     divDur.className = "session-item__duration";
     topRow.appendChild(divDur);
 
-    // delete the item by left swipe:
-    let startX = 0;
-    let startY = 0;
-    let currentX = 0;
-    let hasVibrated = false;
+    // // delete the item by left swipe:
+    // let startX = 0;
+    // let startY = 0;
+    // let currentX = 0;
+    // let hasVibrated = false;
 
-    sessionItem.addEventListener("touchmove", (e) => {
-      const moveX = e.touches[0].clientX;
-      currentX = moveX - startX;
+    // sessionItem.addEventListener("touchmove", (e) => {
+    //   const moveX = e.touches[0].clientX;
+    //   currentX = moveX - startX;
 
-      //move left only + constraint:
-      if (currentX < 0) {
-        const limitedX = Math.max(currentX, -50);
-        sessionItem.style.transform = `translateX(${limitedX}px)`;
-        // opacity effect:
-        const opacity = 1 + limitedX / 200;
-        sessionItem.style.opacity = opacity;
-      }
-      // vibration:
-      if (currentX < -80 && !hasVibrated) {
-        navigator.vibrate?.(30);
-        hasVibrated = true;
-      }
-    });
+    //   //move left only + constraint:
+    //   if (currentX < 0) {
+    //     const limitedX = Math.max(currentX, -50);
+    //     sessionItem.style.transform = `translateX(${limitedX}px)`;
+    //     // opacity effect:
+    //     const opacity = 1 + limitedX / 200;
+    //     sessionItem.style.opacity = opacity;
+    //   }
+    //   // vibration:
+    //   if (currentX < -80 && !hasVibrated) {
+    //     navigator.vibrate?.(30);
+    //     hasVibrated = true;
+    //   }
+    // });
 
-    sessionItem.addEventListener("touchstart", (e) => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      sessionItem.style.transition = "none";
-    });
+    // sessionItem.addEventListener("touchstart", (e) => {
+    //   startX = e.touches[0].clientX;
+    //   startY = e.touches[0].clientY;
+    //   sessionItem.style.transition = "none";
+    // });
 
-    sessionItem.addEventListener("touchend", (e) => {
-      const endX = e.changedTouches[0].clientX;
-      const endY = e.changedTouches[0].clientY;
+    // sessionItem.addEventListener("touchend", (e) => {
+    //   const endX = e.changedTouches[0].clientX;
+    //   const endY = e.changedTouches[0].clientY;
 
-      const diffX = endX - startX;
-      const diffY = endY - startY;
+    //   const diffX = endX - startX;
+    //   const diffY = endY - startY;
 
       // return animation
       sessionItem.style.transition = "transform 0.2s ease";
@@ -231,7 +230,7 @@ function populateSessions() {
       if (Math.abs(diffY) > 30) {
         sessionItem.style.transform = "translateX(0)";
         sessionItem.style.opacity = "1";
-        hasVibrated = false; // ✅
+        hasVibrated = false;
         return;
       }
 
@@ -272,7 +271,7 @@ document.getElementById("confirm-delete-one").onclick = () => {
 
   const updated = sessions.filter((s) => s.start !== sessionToDelete.start);
 
-  localStorage.setItem("sessions", JSON.stringify(updated));
+  StorageManager.setSessions(updated);
 
   sessionToDelete = null;
 
@@ -294,12 +293,13 @@ function setupModalClose(modal) {
 
 setupModalClose(modalDeleteOne);
 
-const getSessions = StorageManager.getSessions();
-
-const getLastDay = (sessionsList) =>
-  getDayformatDate(Math.max(...sessionsList.map((el) => el.end)));
+const getLastDay = (sessionsList) => {
+  if (!sessionsList.length) return null;
+  return getDayformatDate(Math.max(...sessionsList.map((el) => el.end)));
+};
 
 const getSessionsForDay = (sessionsList, day) => {
+  if (!day) return "00:00:00";
   return sessionsList.filter((el) => getDayformatDate(el.end) === day);
 };
 
@@ -381,7 +381,7 @@ window.addEventListener("load", () => {
   populateCategories();
   populateSessions();
 
-  const session = JSON.parse(localStorage.getItem("activeSession"));
+  const session = StorageManager.getActiveSession();
 
   if (session) {
     timer.classList.add("running");
@@ -403,7 +403,7 @@ document.getElementById("cancel-delete-all").onclick = () => {
 };
 
 document.getElementById("confirm-delete-all").onclick = () => {
-  localStorage.clear();
+  StorageManager.clearAll();
 
   modalDeleteAll.classList.add("hidden");
 
@@ -613,7 +613,7 @@ function importData(file) {
         throw new Error("Invalid format");
       }
       if (!confirm("Replace current data?")) return;
-      localStorage.setItem("sessions", JSON.stringify(parsed));
+      StorageManager.setSessions(parsed);
 
       populateSessions();
       renderTotal();
