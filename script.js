@@ -5,6 +5,10 @@ const colors = {
   exercise: "#f97316",
   other: "#f0e112",
 };
+let startX = 0;
+let startY = 0;
+let currentItem = null;
+let hasVibrated = false;
 
 let interval = null;
 const timer = document.getElementById("timer");
@@ -128,7 +132,6 @@ toggleBtn.onclick = () => {
     const sessions = StorageManager.getSessions();
     StorageManager.setSessions([...sessions, { ...session, end, duration }]);
 
-    StorageManager.setSessions(sessions);
     StorageManager.removeActiveSession();
 
     timer.classList.remove("running");
@@ -159,6 +162,16 @@ function populateCategories() {
   });
 }
 
+function resetSwipe() {
+  if (!currentItem) return;
+
+  currentItem.style.transform = "translateX(0)";
+  currentItem.style.opacity = "1";
+
+  currentItem = null;
+  hasVibrated = false;
+}
+
 function populateSessions() {
   nodeSessionsList.innerHTML = "";
 
@@ -167,6 +180,7 @@ function populateSessions() {
   [...sessionsList].reverse().forEach((item) => {
     const sessionItem = document.createElement("div");
     sessionItem.className = "session-item";
+    sessionItem.dataset.id = item.start;
     const topRow = document.createElement("div");
     topRow.className = "session-item__top";
     const divCategory = document.createElement("div");
@@ -184,114 +198,15 @@ function populateSessions() {
     divDur.innerHTML = `${formatTime(item.duration)}`;
     divDur.className = "session-item__duration";
     topRow.appendChild(divDur);
-
-    // // delete the item by left swipe:
-    // let startX = 0;
-    // let startY = 0;
-    // let currentX = 0;
-    // let hasVibrated = false;
-
-    // sessionItem.addEventListener("touchmove", (e) => {
-    //   const moveX = e.touches[0].clientX;
-    //   currentX = moveX - startX;
-
-    //   //move left only + constraint:
-    //   if (currentX < 0) {
-    //     const limitedX = Math.max(currentX, -50);
-    //     sessionItem.style.transform = `translateX(${limitedX}px)`;
-    //     // opacity effect:
-    //     const opacity = 1 + limitedX / 200;
-    //     sessionItem.style.opacity = opacity;
-    //   }
-    //   // vibration:
-    //   if (currentX < -80 && !hasVibrated) {
-    //     navigator.vibrate?.(30);
-    //     hasVibrated = true;
-    //   }
-    // });
-
-    // sessionItem.addEventListener("touchstart", (e) => {
-    //   startX = e.touches[0].clientX;
-    //   startY = e.touches[0].clientY;
-    //   sessionItem.style.transition = "none";
-    // });
-
-    // sessionItem.addEventListener("touchend", (e) => {
-    //   const endX = e.changedTouches[0].clientX;
-    //   const endY = e.changedTouches[0].clientY;
-
-    //   const diffX = endX - startX;
-    //   const diffY = endY - startY;
-
-      // return animation
-      sessionItem.style.transition = "transform 0.2s ease";
-
-      // якщо це не горизонтальний свайп → просто назад
-      if (Math.abs(diffY) > 30) {
-        sessionItem.style.transform = "translateX(0)";
-        sessionItem.style.opacity = "1";
-        hasVibrated = false;
-        return;
-      }
-
-      // swipe enougth:
-      if (diffX < -80) {
-        sessionItem.style.transform = "translateX(-100%)";
-        sessionItem.style.opacity = "1";
-
-        // невелика затримка для ефекту
-        setTimeout(() => {
-          openDeleteModal(item);
-          sessionItem.style.transform = "translateX(0)";
-        }, 150);
-      } else {
-        // wipe is not enougth --> backward:
-        sessionItem.style.transform = "translateX(0)";
-        sessionItem.style.opacity = "1";
-      }
-      hasVibrated = false;
-    });
     nodeSessionsList.appendChild(sessionItem);
   });
 }
-
-// DELETE one session:
-const modalDeleteOne = document.getElementById("modal-delete-one");
-let sessionToDelete = null;
-
-function openDeleteModal(session) {
-  sessionToDelete = session;
-  modalDeleteOne.classList.remove("hidden");
-}
-
-document.getElementById("confirm-delete-one").onclick = () => {
-  if (!sessionToDelete) return;
-
-  const sessions = StorageManager.getSessions();
-
-  const updated = sessions.filter((s) => s.start !== sessionToDelete.start);
-
-  StorageManager.setSessions(updated);
-
-  sessionToDelete = null;
-
-  modalDeleteOne.classList.add("hidden");
-
-  populateSessions();
-  renderTotal();
-};
-
-document.getElementById("cancel-delete-one").onclick = () => {
-  modalDeleteOne.classList.add("hidden");
-};
 
 function setupModalClose(modal) {
   modal.addEventListener("click", (e) => {
     if (e.target === modal) modal.classList.add("hidden");
   });
 }
-
-setupModalClose(modalDeleteOne);
 
 const getLastDay = (sessionsList) => {
   if (!sessionsList.length) return null;
@@ -416,7 +331,6 @@ setupModalClose(modalDeleteAll);
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     modalDeleteAll.classList.add("hidden");
-    modalDeleteOne.classList.add("hidden");
   }
 });
 
@@ -625,7 +539,7 @@ function importData(file) {
   reader.readAsText(file);
 }
 
-// new chart with categories:=====================================
+// =====================================new chart with categories:
 function getDailyByCategory() {
   const sessions = StorageManager.getSessions();
   const map = {};
@@ -665,3 +579,128 @@ function getStackedChartData() {
 
   return { labels, datasets };
 }
+
+// =====================================left swipe:
+const SWIPE_THRESHOLD = -40;
+const SWIPE_LIMIT = -30;
+
+nodeSessionsList.addEventListener("touchstart", (e) => {
+  const item = e.target.closest(".session-item");
+  if (!item) return;
+
+  currentItem = item;
+
+  startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
+
+  currentItem.style.transition = "none";
+});
+nodeSessionsList.addEventListener("touchmove", (e) => {
+  if (!currentItem) return;
+
+  const moveX = e.touches[0].clientX;
+  const diffX = moveX - startX;
+
+  if (diffX < 0) {
+    const limitedX =
+      diffX < SWIPE_LIMIT ? SWIPE_LIMIT + (diffX - SWIPE_LIMIT) * 0.2 : diffX;
+    currentItem.style.transform = `translateX(${limitedX}px)`;
+
+    const opacity = 1 + limitedX / 200;
+    currentItem.style.opacity = opacity;
+  }
+
+  if (diffX < SWIPE_THRESHOLD && !hasVibrated) {
+    navigator.vibrate?.(30);
+    hasVibrated = true;
+  }
+});
+nodeSessionsList.addEventListener("touchend", (e) => {
+  if (!currentItem) return;
+
+  const endX = e.changedTouches[0].clientX;
+  const endY = e.changedTouches[0].clientY;
+
+  const diffX = endX - startX;
+  const diffY = endY - startY;
+
+  currentItem.style.transition = "transform 0.2s ease";
+
+  if (Math.abs(diffY) > 30) {
+    resetSwipe();
+    return;
+  }
+
+  if (diffX < SWIPE_THRESHOLD) {
+    currentItem.style.transform = "translateX(-100%)";
+    currentItem.style.height = currentItem.offsetHeight + "px";
+    currentItem.style.overflow = "hidden";
+
+    const id = Number(currentItem.dataset.id);
+
+    setTimeout(() => {
+      const sessions = StorageManager.getSessions();
+      const session = sessions.find((s) => s.start === id);
+
+      if (session) {
+        handleDeleteWithUndo(session);
+      }
+      currentItem.style.transition = "height 0.2s ease";
+      currentItem.style.height = "0px";
+      resetSwipe();
+    }, 150);
+  } else {
+    resetSwipe();
+  }
+});
+
+// =====================================undo delete:
+let pendingDelete = null;
+let undoTimeout = null;
+
+function handleDeleteWithUndo(session) {
+  pendingDelete = session;
+
+  showUndoToast();
+
+  clearTimeout(undoTimeout);
+  undoTimeout = setTimeout(() => {
+    finalizeDelete();
+  }, 3000);
+}
+
+function finalizeDelete() {
+  if (!pendingDelete) return;
+
+  const sessions = StorageManager.getSessions();
+  const updated = sessions.filter((s) => s.start !== pendingDelete.start);
+
+  StorageManager.setSessions(updated);
+
+  pendingDelete = null;
+
+  undoToast.classList.remove("show");
+  setTimeout(() => undoToast.classList.add("hidden"), 200);
+
+  populateSessions();
+  renderTotal();
+}
+
+const undoToast = document.getElementById("undo-toast");
+const undoBtn = document.getElementById("undo-btn");
+
+function showUndoToast() {
+  undoToast.classList.remove("hidden");
+
+  setTimeout(() => {
+    undoToast.classList.add("show");
+  }, 10);
+}
+
+undoBtn.onclick = () => {
+  clearTimeout(undoTimeout);
+  pendingDelete = null;
+
+  undoToast.classList.remove("show");
+  setTimeout(() => undoToast.classList.add("hidden"), 200);
+};

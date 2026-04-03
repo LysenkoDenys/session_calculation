@@ -27,16 +27,13 @@
         <canvas id="chart"></canvas>
       </div>
     </div>
-    <!-- DELETE ONE SESSION -->
-    <div id="modal-delete-one" class="modal hidden">
-      <div class="modal-content">
-        <p>Delete this session?</p>
-
-        <div class="modal-actions">
-          <button id="confirm-delete-one">Yes</button>
-          <button id="cancel-delete-one">No</button>
-        </div>
-      </div>
+    <!-- DELETE ONE SESSION with undo toast -->
+    <div id="undo-toast" class="undo-toast hidden">
+      <span class="undo-message">Deleted</span>
+      <button id="undo-btn">
+        Undo
+        <span class="undo-progress"></span>
+      </button>
     </div>
     <!-- DELETE ALL SESSIONS -->
     <div id="modal-delete-all" class="modal hidden">
