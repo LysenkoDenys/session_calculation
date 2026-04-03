@@ -655,19 +655,69 @@ nodeSessionsList.addEventListener("touchend", (e) => {
 });
 
 // =====================================undo delete:
+const undoToast = document.getElementById("undo-toast");
+const undoBtn = document.getElementById("undo-btn");
+
 let pendingDelete = null;
-let undoTimeout = null;
+let undoStartTime = null;
+let undoDuration = 3000;
+let undoRAF = null;
 
 function handleDeleteWithUndo(session) {
   pendingDelete = session;
 
   showUndoToast();
-
-  clearTimeout(undoTimeout);
-  undoTimeout = setTimeout(() => {
-    finalizeDelete();
-  }, 3000);
+  startUndoTimer();
 }
+
+function startUndoTimer() {
+  cancelUndoTimer(); // на всякий
+
+  undoStartTime = performance.now();
+
+  function animate(now) {
+    const elapsed = now - undoStartTime;
+    const progress = Math.min(elapsed / undoDuration, 1);
+
+    updateUndoProgress(progress);
+
+    if (progress < 1) {
+      undoRAF = requestAnimationFrame(animate);
+    } else {
+      finalizeDelete();
+    }
+  }
+
+  undoRAF = requestAnimationFrame(animate);
+}
+
+function updateUndoProgress(progress) {
+  const bar = document.querySelector(".undo-progress");
+
+  // зменшується зліва направо
+  bar.style.transform = `scaleX(${1 - progress})`;
+
+  // (опціонально) текст секунд
+  const secondsLeft = Math.ceil((undoDuration * (1 - progress)) / 1000);
+  const textSpan = undoBtn.querySelector("span");
+  textSpan.textContent = `Undo (${secondsLeft})`;
+}
+
+function cancelUndoTimer() {
+  if (undoRAF) {
+    cancelAnimationFrame(undoRAF);
+    undoRAF = null;
+  }
+}
+
+undoBtn.onclick = () => {
+  cancelUndoTimer();
+  pendingDelete = null;
+  hideUndoToast();
+
+  populateSessions();
+  renderTotal();
+};
 
 function finalizeDelete() {
   if (!pendingDelete) return;
@@ -679,28 +729,59 @@ function finalizeDelete() {
 
   pendingDelete = null;
 
-  undoToast.classList.remove("show");
-  setTimeout(() => undoToast.classList.add("hidden"), 200);
+  hideUndoToast();
 
   populateSessions();
   renderTotal();
 }
 
-const undoToast = document.getElementById("undo-toast");
-const undoBtn = document.getElementById("undo-btn");
-
 function showUndoToast() {
   undoToast.classList.remove("hidden");
+  const bar = document.querySelector(".undo-progress");
+  bar.style.transform = "scaleX(1)";
 
   setTimeout(() => {
     undoToast.classList.add("show");
   }, 10);
 }
 
-undoBtn.onclick = () => {
-  clearTimeout(undoTimeout);
-  pendingDelete = null;
-
+function hideUndoToast() {
   undoToast.classList.remove("show");
-  setTimeout(() => undoToast.classList.add("hidden"), 200);
-};
+
+  setTimeout(() => {
+    undoToast.classList.add("hidden");
+  }, 200);
+}
+
+// function finalizeDelete() {
+//   if (!pendingDelete) return;
+
+//   const sessions = StorageManager.getSessions();
+//   const updated = sessions.filter((s) => s.start !== pendingDelete.start);
+
+//   StorageManager.setSessions(updated);
+
+//   pendingDelete = null;
+
+//   undoToast.classList.remove("show");
+//   setTimeout(() => undoToast.classList.add("hidden"), 200);
+
+//   populateSessions();
+//   renderTotal();
+// }
+
+// function showUndoToast() {
+//   undoToast.classList.remove("hidden");
+
+//   setTimeout(() => {
+//     undoToast.classList.add("show");
+//   }, 10);
+// }
+
+// undoBtn.onclick = () => {
+//   clearTimeout(undoTimeout);
+//   pendingDelete = null;
+
+//   undoToast.classList.remove("show");
+//   setTimeout(() => undoToast.classList.add("hidden"), 200);
+// };
