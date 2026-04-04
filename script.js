@@ -19,7 +19,24 @@ const nodeTotal = document.getElementById("total");
 const settingsBtn = document.getElementById("settings-button");
 const settingsMenu = document.getElementById("settings-menu");
 
-// helpers:
+// =====================================helpers:
+
+function groupSessionsByDay(sessions) {
+  const groups = {};
+
+  sessions.forEach((s) => {
+    const day = getDayformatDate(s.end);
+
+    if (!groups[day]) {
+      groups[day] = [];
+    }
+
+    groups[day].push(s);
+  });
+
+  return groups;
+}
+
 settingsBtn.onclick = () => {
   settingsMenu.classList.toggle("hidden");
 };
@@ -176,29 +193,67 @@ function populateSessions() {
   nodeSessionsList.innerHTML = "";
 
   const sessionsList = StorageManager.getSessions();
+  const grouped = groupSessionsByDay(sessionsList);
 
-  [...sessionsList].reverse().forEach((item) => {
-    const sessionItem = document.createElement("div");
-    sessionItem.className = "session-item";
-    sessionItem.dataset.id = item.start;
-    const topRow = document.createElement("div");
-    topRow.className = "session-item__top";
-    const divCategory = document.createElement("div");
-    divCategory.innerHTML = `${item.category}:`;
-    divCategory.className = "session-item__category";
-    topRow.appendChild(divCategory);
-    sessionItem.appendChild(topRow);
+  const sortedDays = Object.keys(grouped).sort().reverse();
 
-    const divInfo = document.createElement("div");
-    divInfo.innerHTML = `${formatDate(item.start)} - ${formatDate(item.end)}`;
-    divInfo.className = "session-item__info";
-    sessionItem.appendChild(divInfo);
+  sortedDays.forEach((day) => {
+    const dayGroup = document.createElement("div");
+    dayGroup.className = "day-group";
 
-    const divDur = document.createElement("div");
-    divDur.innerHTML = `${formatTime(item.duration)}`;
-    divDur.className = "session-item__duration";
-    topRow.appendChild(divDur);
-    nodeSessionsList.appendChild(sessionItem);
+    // 📅 header of the day:
+    const dayHeader = document.createElement("div");
+    dayHeader.className = "day-header";
+
+    // 📊 total за день
+    const total = getTotal(grouped[day]);
+
+    dayHeader.innerHTML = `
+    <span>${day}</span>
+    <span class="day-total">${formatTime(total)}</span>
+  `;
+
+    // 📂 wrapper for sessions:
+    const wrapper = document.createElement("div");
+    wrapper.className = "day-sessions";
+
+    // nodeSessionsList.appendChild(dayHeader);
+
+    grouped[day]
+      .sort((a, b) => b.start - a.start)
+      .forEach((item) => {
+        const sessionItem = document.createElement("div");
+        sessionItem.className = "session-item";
+        sessionItem.dataset.id = item.start;
+
+        const topRow = document.createElement("div");
+        topRow.className = "session-item__top";
+
+        const divCategory = document.createElement("div");
+        divCategory.innerHTML = `${item.category}:`;
+        divCategory.className = "session-item__category";
+
+        const divDur = document.createElement("div");
+        divDur.innerHTML = `${formatTime(item.duration)}`;
+        divDur.className = "session-item__duration";
+
+        topRow.appendChild(divCategory);
+        topRow.appendChild(divDur);
+
+        const divInfo = document.createElement("div");
+        divInfo.innerHTML = `${formatDate(item.start)} - ${formatDate(item.end)}`;
+        divInfo.className = "session-item__info";
+
+        sessionItem.appendChild(topRow);
+        sessionItem.appendChild(divInfo);
+
+        wrapper.appendChild(sessionItem);
+      });
+
+    dayGroup.appendChild(dayHeader);
+    dayGroup.appendChild(wrapper);
+
+    nodeSessionsList.appendChild(dayGroup);
   });
 }
 
@@ -752,36 +807,3 @@ function hideUndoToast() {
     undoToast.classList.add("hidden");
   }, 200);
 }
-
-// function finalizeDelete() {
-//   if (!pendingDelete) return;
-
-//   const sessions = StorageManager.getSessions();
-//   const updated = sessions.filter((s) => s.start !== pendingDelete.start);
-
-//   StorageManager.setSessions(updated);
-
-//   pendingDelete = null;
-
-//   undoToast.classList.remove("show");
-//   setTimeout(() => undoToast.classList.add("hidden"), 200);
-
-//   populateSessions();
-//   renderTotal();
-// }
-
-// function showUndoToast() {
-//   undoToast.classList.remove("hidden");
-
-//   setTimeout(() => {
-//     undoToast.classList.add("show");
-//   }, 10);
-// }
-
-// undoBtn.onclick = () => {
-//   clearTimeout(undoTimeout);
-//   pendingDelete = null;
-
-//   undoToast.classList.remove("show");
-//   setTimeout(() => undoToast.classList.add("hidden"), 200);
-// };
