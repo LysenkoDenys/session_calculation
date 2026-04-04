@@ -25,7 +25,8 @@ https://sec2go.vercel.app/
 <p> 1) ✔️ add tips to the buttons and menues</p>
 <p> 2) ✔️ less movement to the left when swiping</p>
 <p> 3) service Worker PWA</p>
-<p> 4) Group by day</p>
+<p> 4) Group by day 📌 sticky header (день “прилипає” зверху)
+📊 total за день прямо в header</p>
 <p> 5) ✔️ видалення сесій (swipe to the left)</p>
 <p> 6) ✔️ покращено UI підтягується остання категорія яку стартували автоматично (не треба кожного разу вибирати)</p>
 <p> 7) ✔️ add chart with categories 7 days</p>
