@@ -1,3 +1,4 @@
+const COLLAPSE_KEY = "collapsedDays";
 const categories = ["work", "study", "exercise", "other"];
 const colors = {
   work: "#4f46e5",
@@ -35,6 +36,14 @@ function groupSessionsByDay(sessions) {
   });
 
   return groups;
+}
+
+function setCollapsedState(state) {
+  localStorage.setItem(COLLAPSE_KEY, JSON.stringify(state));
+}
+
+function getCollapsedState() {
+  return JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {};
 }
 
 settingsBtn.onclick = () => {
@@ -201,6 +210,7 @@ function resetSwipe() {
 function populateSessions() {
   nodeSessionsList.innerHTML = "";
 
+  const collapsedState = getCollapsedState();
   const sessionsList = StorageManager.getSessions();
   const grouped = groupSessionsByDay(sessionsList);
 
@@ -214,15 +224,20 @@ function populateSessions() {
     const dayHeader = document.createElement("div");
     dayHeader.className = "day-header";
     dayHeader.onclick = () => {
+      const state = getCollapsedState();
+
       wrapper.classList.toggle("collapsed");
 
-      const arrow = dayHeader.querySelector("span");
-      arrow.textContent = wrapper.classList.contains("collapsed")
-        ? "▶ " + day
-        : "▼ " + day;
+      const isNowCollapsed = wrapper.classList.contains("collapsed");
+
+      state[day] = isNowCollapsed;
+      setCollapsedState(state);
+
+      const label = dayHeader.querySelector(".day-label");
+      label.textContent = isNowCollapsed ? "▶ " + day : "▼ " + day;
     };
 
-    // 📊 total за день
+    // 📊 total for the day:
     const total = getTotal(grouped[day]);
 
     dayHeader.innerHTML = `
@@ -234,7 +249,12 @@ function populateSessions() {
     const wrapper = document.createElement("div");
     wrapper.className = "day-sessions";
 
-    // nodeSessionsList.appendChild(dayHeader);
+    const isCollapsed = collapsedState[day];
+
+    if (isCollapsed) {
+      wrapper.classList.add("collapsed");
+      wrapper.style.height = "0px";
+    }
 
     grouped[day]
       .sort((a, b) => b.start - a.start)
