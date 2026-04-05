@@ -83,6 +83,16 @@ function formatTime(ms) {
   return `${h}:${m}:${s}`;
 }
 
+function formatCurrentTime(ms) {
+  const date = new Date(ms);
+
+  const h = String(date.getHours()).padStart(2, "0");
+  const m = String(date.getMinutes()).padStart(2, "0");
+  const s = String(date.getSeconds()).padStart(2, "0");
+
+  return `${h}:${m}:${s}`;
+}
+
 function formatDate(ms) {
   const totalSeconds = Math.floor(ms / 1000);
   const date = new Date(ms);
@@ -154,7 +164,6 @@ toggleBtn.onclick = () => {
     timer.classList.remove("running");
 
     resetUI();
-    renderTotal();
     populateSessions();
   }
 
@@ -204,12 +213,20 @@ function populateSessions() {
     // 📅 header of the day:
     const dayHeader = document.createElement("div");
     dayHeader.className = "day-header";
+    dayHeader.onclick = () => {
+      wrapper.classList.toggle("collapsed");
+
+      const arrow = dayHeader.querySelector("span");
+      arrow.textContent = wrapper.classList.contains("collapsed")
+        ? "▶ " + day
+        : "▼ " + day;
+    };
 
     // 📊 total за день
     const total = getTotal(grouped[day]);
 
     dayHeader.innerHTML = `
-    <span>${day}</span>
+    <span>▼ ${day}</span>
     <span class="day-total">${formatTime(total)}</span>
   `;
 
@@ -241,11 +258,12 @@ function populateSessions() {
         topRow.appendChild(divDur);
 
         const divInfo = document.createElement("div");
-        divInfo.innerHTML = `${formatDate(item.start)} - ${formatDate(item.end)}`;
+        divInfo.innerHTML = `${formatCurrentTime(item.start)} - ${formatCurrentTime(item.end)}`;
         divInfo.className = "session-item__info";
 
-        sessionItem.appendChild(topRow);
+        sessionItem.appendChild(divCategory);
         sessionItem.appendChild(divInfo);
+        sessionItem.appendChild(topRow);
 
         wrapper.appendChild(sessionItem);
       });
@@ -263,73 +281,12 @@ function setupModalClose(modal) {
   });
 }
 
-const getLastDay = (sessionsList) => {
-  if (!sessionsList.length) return null;
-  return getDayformatDate(Math.max(...sessionsList.map((el) => el.end)));
-};
-
-const getSessionsForDay = (sessionsList, day) => {
-  if (!day) return "00:00:00";
-  return sessionsList.filter((el) => getDayformatDate(el.end) === day);
-};
-
 function getTotal(sessionsOfDay) {
   return sessionsOfDay.reduce(
     (accumulator, currentValue) => accumulator + currentValue.duration,
     0,
   );
 }
-
-// Total time of the last session day:
-function getTotalDayTime() {
-  const sessionsList = StorageManager.getSessions();
-  if (sessionsList.length === 0) return "00:00:00";
-  const day = getLastDay(sessionsList);
-
-  const sessionsOfDay = getSessionsForDay(sessionsList, day);
-
-  const getTotalTime = getTotal(sessionsOfDay);
-  return formatTime(getTotalTime);
-}
-
-// THE PREV DAY:
-const getLastPrevDay = () => {
-  const sessionsList = StorageManager.getSessions();
-  const daysOfSessions = Array.from(
-    new Set(sessionsList.map((el) => getDayformatDate(el.end))),
-  );
-  if (sessionsList.length === 0) return "00:00:00";
-  if (daysOfSessions.length < 2) return "00:00:00";
-
-  return daysOfSessions.sort().reverse()[1];
-};
-
-// Total time of the previous session day:
-function getTotalPrevDayTime() {
-  const sessionsList = StorageManager.getSessions();
-  if (sessionsList.length === 0) return "00:00:00";
-
-  const prevDay = getLastPrevDay();
-  if (!prevDay) return "00:00:00";
-
-  const sessionsOfPrevDay = getSessionsForDay(sessionsList, prevDay);
-
-  const getTotalTime = getTotal(sessionsOfPrevDay);
-  return formatTime(getTotalTime);
-}
-
-function renderTotal() {
-  const total = getTotalDayTime();
-  const prev = getTotalPrevDayTime();
-
-  nodeTotal.innerHTML = `
-  <div class='total__info_1'> <span class="total__span_1">Current: </span> <span class="total__span_2">${total}</span></div>
-   <div class='total__info_2'> <span class="prev__span_1">Previous: </span> <span class="prev__span_2">${prev}</span></div>
-`;
-  nodeTotal.className = "total__info";
-}
-
-renderTotal();
 
 // UI timer:
 function startTimerUI(startTime) {
@@ -378,7 +335,6 @@ document.getElementById("confirm-delete-all").onclick = () => {
   modalDeleteAll.classList.add("hidden");
 
   populateSessions();
-  renderTotal();
 };
 
 setupModalClose(modalDeleteAll);
@@ -585,7 +541,6 @@ function importData(file) {
       StorageManager.setSessions(parsed);
 
       populateSessions();
-      renderTotal();
     } catch (err) {
       alert("Invalid file");
     }
@@ -771,7 +726,6 @@ undoBtn.onclick = () => {
   hideUndoToast();
 
   populateSessions();
-  renderTotal();
 };
 
 function finalizeDelete() {
@@ -787,7 +741,6 @@ function finalizeDelete() {
   hideUndoToast();
 
   populateSessions();
-  renderTotal();
 }
 
 function showUndoToast() {
