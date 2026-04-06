@@ -255,6 +255,8 @@ h1 {
 
 .sessions {
   width: 90%;
+  overflow-y: auto;
+  max-height: 100%;
 }
 
 #session-container {
@@ -525,9 +527,6 @@ h1 {
 }
 
 /* ==============================day-group===============================*/
-.day-group {
-}
-
 .day-header {
   position: sticky;
   top: 0;
@@ -559,9 +558,64 @@ h1 {
 .day-sessions {
   max-height: 1000px;
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: height 0.25s ease;
 }
 
 .day-sessions.collapsed {
-  max-height: 0;
+  display: none;
+}
+
+/* ==============================load more button===============================*/
+
+#load-more {
+  padding: 6px 12px;
+  margin-top: 10px;
+
+  font-size: clamp(10px, 3vw, 13px);
+  font-weight: 500;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(6px);
+
+  color: rgba(255, 255, 255, 0.85);
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#load-more:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+#load-more:active {
+  transform: scale(0.96);
+}
+
+#load-more i {
+  display: inline-block;
+  animation: arrowPulse 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes arrowPulse {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(2px);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+#load-more:hover i {
+  animation-duration: 0.6s;
+  transform: translateY(8px);
 }

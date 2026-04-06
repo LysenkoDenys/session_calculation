@@ -32,6 +32,5 @@ https://sec2go.vercel.app/
 <p> 7) ✔️ add chart with categories 7 days</p>
 
 <!-- Можу допомогти додати:
-limitation of sessions to render
 ☁️ sync (щоб не втрачати дані)
 -->

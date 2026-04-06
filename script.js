@@ -11,6 +11,8 @@ let startY = 0;
 let currentItem = null;
 let hasVibrated = false;
 
+let visibleCount = 100;
+
 let interval = null;
 const timer = document.getElementById("timer");
 const display = document.getElementById("time-display");
@@ -211,14 +213,33 @@ function populateSessions() {
   nodeSessionsList.innerHTML = "";
 
   const collapsedState = getCollapsedState();
-  const sessionsList = StorageManager.getSessions();
+  const allSessions = StorageManager.getSessions();
+
+  // 🔥 load last limited sessions only:
+  const sessionsList = [...allSessions]
+    .sort((a, b) => b.start - a.start)
+    .slice(0, visibleCount);
   const grouped = groupSessionsByDay(sessionsList);
+
+  const remaining = allSessions.length - visibleCount;
+
+  const label = loadMoreBtn.querySelector(".label");
+
+  if (remaining > 0) {
+    label.textContent = `Load more (${remaining} left)`;
+  } else {
+    loadMoreBtn.style.display = "none";
+  }
 
   const sortedDays = Object.keys(grouped).sort().reverse();
 
   sortedDays.forEach((day) => {
     const dayGroup = document.createElement("div");
     dayGroup.className = "day-group";
+
+    // 📂 wrapper for sessions:
+    const wrapper = document.createElement("div");
+    wrapper.className = "day-sessions";
 
     // 📅 header of the day:
     const dayHeader = document.createElement("div");
@@ -240,20 +261,22 @@ function populateSessions() {
     // 📊 total for the day:
     const total = getTotal(grouped[day]);
 
+    const today = getDayformatDate(Date.now());
+
+    let isCollapsed;
+
+    if (collapsedState[day] !== undefined) {
+      isCollapsed = collapsedState[day];
+    } else {
+      isCollapsed = day !== today;
+    }
     dayHeader.innerHTML = `
-    <span>▼ ${day}</span>
-    <span class="day-total">${formatTime(total)}</span>
-  `;
-
-    // 📂 wrapper for sessions:
-    const wrapper = document.createElement("div");
-    wrapper.className = "day-sessions";
-
-    const isCollapsed = collapsedState[day];
+  <span class="day-label">${isCollapsed ? "▶" : "▼"} ${day}</span>
+  <span class="day-total">${formatTime(total)}</span>
+`;
 
     if (isCollapsed) {
       wrapper.classList.add("collapsed");
-      wrapper.style.height = "0px";
     }
 
     grouped[day]
@@ -780,3 +803,14 @@ function hideUndoToast() {
     undoToast.classList.add("hidden");
   }, 200);
 }
+
+const loadMoreBtn = document.getElementById("load-more");
+
+loadMoreBtn.onclick = () => {
+  const scrollTop = nodeSessionsList.scrollTop;
+
+  visibleCount += 100;
+  populateSessions();
+
+  nodeSessionsList.scrollTop = scrollTop;
+};
