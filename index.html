@@ -94,6 +94,10 @@
         </div>
       </div>
       <div class="sessions">
+        <div id="empty-state" class="empty-state">
+          <p>No sessions yet.</p>
+          <p>Start tracking... 🚀</p>
+        </div>
         <div id="session-container"></div>
       </div>
       <button id="load-more">
@@ -104,20 +108,20 @@
 
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <!-- <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-          navigator.serviceWorker.register('/sw.js').then(
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/sw.js").then(
             function (registration) {
               // Registration was successful
               console.log(
-                'ServiceWorker registration successful with scope: ',
-                registration.scope
+                "ServiceWorker registration successful with scope: ",
+                registration.scope,
               );
             },
             function (err) {
               // Registration failed
-              console.log('ServiceWorker registration failed: ', err);
-            }
+              console.log("ServiceWorker registration failed: ", err);
+            },
           );
         });
       }

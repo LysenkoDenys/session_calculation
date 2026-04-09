@@ -105,7 +105,6 @@ function formatCurrentTime(ms) {
 }
 
 function formatDate(ms) {
-  const totalSeconds = Math.floor(ms / 1000);
   const date = new Date(ms);
 
   const y = date.getFullYear();
@@ -118,7 +117,6 @@ function formatDate(ms) {
 }
 
 function getDayformatDate(ms) {
-  const totalSeconds = Math.floor(ms / 1000);
   const date = new Date(ms);
 
   const y = date.getFullYear();
@@ -213,7 +211,27 @@ function populateSessions() {
   nodeSessionsList.innerHTML = "";
 
   const collapsedState = getCollapsedState();
+
+  //=====================================================================
   const allSessions = StorageManager.getSessions();
+
+  // if you get started or clear all the sessions:
+  const emptyState = document.getElementById("empty-state");
+
+  console.log("sessions:", allSessions);
+  console.log("emptyState:", emptyState);
+  console.log(document.getElementById("empty-state"));
+
+  if (!allSessions || allSessions.length === 0) {
+    emptyState.classList.remove("hidden"); // прибираємо hidden
+    emptyState.classList.add("show"); // запускаємо анімацію
+    return;
+  } else {
+    emptyState.classList.remove("show");
+    emptyState.classList.add("hidden"); // сховати
+  }
+
+  //=====================================================================
 
   // 🔥 load last limited sessions only:
   const sessionsList = [...allSessions]
@@ -221,11 +239,13 @@ function populateSessions() {
     .slice(0, visibleCount);
   const grouped = groupSessionsByDay(sessionsList);
 
-  const remaining = allSessions.length - visibleCount;
+  const total = allSessions.length;
+  const remaining = total - visibleCount;
 
   const label = loadMoreBtn.querySelector(".label");
 
-  if (remaining > 0) {
+  if (total > visibleCount) {
+    loadMoreBtn.style.display = "block";
     label.textContent = `Load more (${remaining} left)`;
   } else {
     loadMoreBtn.style.display = "none";
