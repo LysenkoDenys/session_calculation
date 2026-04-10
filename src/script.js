@@ -1,11 +1,8 @@
+import { renderChart } from "./chart.js";
+
 const COLLAPSE_KEY = "collapsedDays";
-const categories = ["work", "study", "exercise", "other"];
-const colors = {
-  work: "#4f46e5",
-  study: "#4aed26",
-  exercise: "#f97316",
-  other: "#f0e112",
-};
+export const categories = ["work", "study", "exercise", "other"];
+
 let startX = 0;
 let startY = 0;
 let currentItem = null;
@@ -116,7 +113,7 @@ function formatDate(ms) {
   return `${y}-${mo}-${d}_${h}:${m}:${s}`;
 }
 
-function getDayformatDate(ms) {
+export function getDayformatDate(ms) {
   const date = new Date(ms);
 
   const y = date.getFullYear();
@@ -179,7 +176,7 @@ toggleBtn.onclick = () => {
   updateToggleButton();
 };
 
-function populateCategories() {
+export function populateCategories() {
   select.innerHTML = "";
 
   const lastCategory = StorageManager.getLastCategory();
@@ -408,147 +405,147 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// 📊 CHART:
+// // 📊 CHART:
 
-function getLast7Days() {
-  const days = [];
+// function getLast7Days() {
+//   const days = [];
 
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
+//   for (let i = 6; i >= 0; i--) {
+//     const d = new Date();
+//     d.setDate(d.getDate() - i);
 
-    const formatted = getDayformatDate(d.getTime());
-    days.push(formatted);
-  }
+//     const formatted = getDayformatDate(d.getTime());
+//     days.push(formatted);
+//   }
 
-  return days;
-}
+//   return days;
+// }
 
-function getDailyTotals() {
-  const sessions = StorageManager.getSessions();
-  const map = {};
-  sessions.forEach((s) => {
-    const day = getDayformatDate(s.end);
-    map[day] = (map[day] || 0) + s.duration;
-  });
-  return map;
-}
+// function getDailyTotals() {
+//   const sessions = StorageManager.getSessions();
+//   const map = {};
+//   sessions.forEach((s) => {
+//     const day = getDayformatDate(s.end);
+//     map[day] = (map[day] || 0) + s.duration;
+//   });
+//   return map;
+// }
 
-function getChartData() {
-  const totals = getDailyTotals();
-  const days = getLast7Days();
+// function getChartData() {
+//   const totals = getDailyTotals();
+//   const days = getLast7Days();
 
-  const labels = days.map((d) => d.slice(5)); // MM-DD
-  const values = days.map((d) => Math.floor((totals[d] || 0) / 1000 / 60));
+//   const labels = days.map((d) => d.slice(5)); // MM-DD
+//   const values = days.map((d) => Math.floor((totals[d] || 0) / 1000 / 60));
 
-  return { labels, values };
-}
+//   return { labels, values };
+// }
 
-function createGradient(ctx, color) {
-  const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+// function createGradient(ctx, color) {
+//   const gradient = ctx.createLinearGradient(0, 0, 0, 300);
 
-  gradient.addColorStop(0, color);
-  gradient.addColorStop(1, color + "CC");
+//   gradient.addColorStop(0, color);
+//   gradient.addColorStop(1, color + "CC");
 
-  return gradient;
-}
+//   return gradient;
+// }
 
-let chart;
+// let chart;
 
-function renderChart() {
-  const { labels, datasets } = getStackedChartData();
+// function renderChart() {
+//   const { labels, datasets } = getStackedChartData();
 
-  const canvas = document.getElementById("chart");
-  const ctx = canvas.getContext("2d");
+//   const canvas = document.getElementById("chart");
+//   const ctx = canvas.getContext("2d");
 
-  if (chart) chart.destroy();
+//   if (chart) chart.destroy();
 
-  // 🔥 додаємо gradient до кожного dataset
-  datasets.forEach((ds) => {
-    ds.backgroundColor = createGradient(ctx, ds.backgroundColor);
-  });
+//   // 🔥 додаємо gradient до кожного dataset
+//   datasets.forEach((ds) => {
+//     ds.backgroundColor = createGradient(ctx, ds.backgroundColor);
+//   });
 
-  chart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets,
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
+//   chart = new Chart(ctx, {
+//     type: "bar",
+//     data: {
+//       labels,
+//       datasets,
+//     },
+//     options: {
+//       responsive: true,
+//       maintainAspectRatio: false,
 
-      layout: {
-        padding: 10,
-      },
+//       layout: {
+//         padding: 10,
+//       },
 
-      animation: {
-        duration: 800,
-        easing: "easeOutQuart",
-      },
+//       animation: {
+//         duration: 800,
+//         easing: "easeOutQuart",
+//       },
 
-      plugins: {
-        legend: {
-          labels: {
-            color: "#ccc",
-            font: {
-              size: 10,
-              weight: "600",
-            },
-            padding: 10,
-            usePointStyle: true,
-            pointStyle: "rect",
-          },
-        },
+//       plugins: {
+//         legend: {
+//           labels: {
+//             color: "#ccc",
+//             font: {
+//               size: 10,
+//               weight: "600",
+//             },
+//             padding: 10,
+//             usePointStyle: true,
+//             pointStyle: "rect",
+//           },
+//         },
 
-        tooltip: {
-          backgroundColor: "rgba(20,20,20,0.9)",
-          titleColor: "#fff",
-          bodyColor: "#aaa",
-          borderColor: "rgba(255,255,255,0.1)",
-          borderWidth: 1,
-          padding: 12,
-          cornerRadius: 12,
-          displayColors: false,
+//         tooltip: {
+//           backgroundColor: "rgba(20,20,20,0.9)",
+//           titleColor: "#fff",
+//           bodyColor: "#aaa",
+//           borderColor: "rgba(255,255,255,0.1)",
+//           borderWidth: 1,
+//           padding: 12,
+//           cornerRadius: 12,
+//           displayColors: false,
 
-          callbacks: {
-            title: (items) => `Day: ${items[0].label}`,
-            label: (context) => {
-              return `${context.dataset.label}: ${context.raw} min`;
-            },
-          },
-        },
-      },
+//           callbacks: {
+//             title: (items) => `Day: ${items[0].label}`,
+//             label: (context) => {
+//               return `${context.dataset.label}: ${context.raw} min`;
+//             },
+//           },
+//         },
+//       },
 
-      scales: {
-        x: {
-          stacked: true,
-          grid: { display: false },
-          ticks: {
-            color: "#aaa",
-            font: {
-              size: 8,
-              weight: "600",
-            },
-            padding: 5,
-          },
-        },
+//       scales: {
+//         x: {
+//           stacked: true,
+//           grid: { display: false },
+//           ticks: {
+//             color: "#aaa",
+//             font: {
+//               size: 8,
+//               weight: "600",
+//             },
+//             padding: 5,
+//           },
+//         },
 
-        y: {
-          stacked: true,
-          beginAtZero: true,
-          grid: {
-            color: "rgba(255,255,255,0.03)",
-          },
-          ticks: {
-            color: "#888",
-            callback: (v) => v + "m",
-          },
-        },
-      },
-    },
-  });
-}
+//         y: {
+//           stacked: true,
+//           beginAtZero: true,
+//           grid: {
+//             color: "rgba(255,255,255,0.03)",
+//           },
+//           ticks: {
+//             color: "#888",
+//             callback: (v) => v + "m",
+//           },
+//         },
+//       },
+//     },
+//   });
+// }
 
 const chartModal = document.getElementById("chart-modal");
 
@@ -612,46 +609,46 @@ function importData(file) {
   reader.readAsText(file);
 }
 
-// =====================================new chart with categories:
-function getDailyByCategory() {
-  const sessions = StorageManager.getSessions();
-  const map = {};
+// // =====================================new chart with categories:
+// function getDailyByCategory() {
+//   const sessions = StorageManager.getSessions();
+//   const map = {};
 
-  sessions.forEach((s) => {
-    const day = getDayformatDate(s.end);
-    let category = s.category;
+//   sessions.forEach((s) => {
+//     const day = getDayformatDate(s.end);
+//     let category = s.category;
 
-    if (!map[day]) {
-      map[day] = {};
-    }
+//     if (!map[day]) {
+//       map[day] = {};
+//     }
 
-    if (!map[day][category]) {
-      map[day][category] = 0;
-    }
+//     if (!map[day][category]) {
+//       map[day][category] = 0;
+//     }
 
-    map[day][category] += s.duration;
-  });
+//     map[day][category] += s.duration;
+//   });
 
-  return map;
-}
+//   return map;
+// }
 
-function getStackedChartData() {
-  const data = getDailyByCategory();
-  const days = getLast7Days();
+// function getStackedChartData() {
+//   const data = getDailyByCategory();
+//   const days = getLast7Days();
 
-  const datasets = categories.map((cat) => {
-    return {
-      label: cat,
-      backgroundColor: colors[cat],
-      barThickness: 25,
-      data: days.map((day) => Math.floor((data[day]?.[cat] || 0) / 1000 / 60)),
-    };
-  });
+//   const datasets = categories.map((cat) => {
+//     return {
+//       label: cat,
+//       backgroundColor: colors[cat],
+//       barThickness: 25,
+//       data: days.map((day) => Math.floor((data[day]?.[cat] || 0) / 1000 / 60)),
+//     };
+//   });
 
-  const labels = days.map((d) => d.slice(5)); // MM-DD
+//   const labels = days.map((d) => d.slice(5)); // MM-DD
 
-  return { labels, datasets };
-}
+//   return { labels, datasets };
+// }
 
 // =====================================left swipe:
 const SWIPE_THRESHOLD = -40;
