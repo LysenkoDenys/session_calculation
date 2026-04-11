@@ -1,19 +1,19 @@
 // sw.js
 
-const CACHE_NAME = 'my-cache-v1';
-const urlsToCache = ['/', 'index.html', 'styles.css', 'script.js'];
+const CACHE_NAME = "my-cache-v1";
+const urlsToCache = ["/", "index.html", "styles.css", "src/script.js"];
 
-self.addEventListener('install', function (event) {
+self.addEventListener("install", function (event) {
   // Perform installation steps
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
-      console.log('Opened cache');
+      console.log("Opened cache");
       return cache.addAll(urlsToCache);
     }),
   );
 });
 
-self.addEventListener('fetch', function (event) {
+self.addEventListener("fetch", function (event) {
   event.respondWith(
     caches.match(event.request).then(function (response) {
       // Cache hit - return response
@@ -26,7 +26,7 @@ self.addEventListener('fetch', function (event) {
 
       return fetch(fetchRequest).then(function (response) {
         // Check if we received a valid response
-        if (!response || response.status !== 200 || response.type !== 'basic') {
+        if (!response || response.status !== 200 || response.type !== "basic") {
           return response;
         }
 
