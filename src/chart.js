@@ -1,4 +1,3 @@
-import { StorageManager } from "./storage.js";
 import { getDayformatDate, categories } from "./script.js";
 
 const colors = {
@@ -22,8 +21,7 @@ export function getLast7Days() {
   return days;
 }
 
-export function getDailyTotals() {
-  const sessions = StorageManager.getSessions();
+export function getDailyTotals(sessions) {
   const map = {};
   sessions.forEach((s) => {
     const day = getDayformatDate(s.end);
@@ -53,8 +51,8 @@ function createGradient(ctx, color) {
 
 let chart;
 
-export function renderChart() {
-  const { labels, datasets } = getStackedChartData();
+export function renderChart(sessions) {
+  const { labels, datasets } = getStackedChartData(sessions);
 
   const canvas = document.getElementById("chart");
   const ctx = canvas.getContext("2d");
@@ -149,8 +147,7 @@ export function renderChart() {
 }
 
 // =====================================new chart with categories:
-function getDailyByCategory() {
-  const sessions = StorageManager.getSessions();
+function getDailyByCategory(sessions) {
   const map = {};
 
   sessions.forEach((s) => {
@@ -171,8 +168,8 @@ function getDailyByCategory() {
   return map;
 }
 
-function getStackedChartData() {
-  const data = getDailyByCategory();
+function getStackedChartData(sessions) {
+  const data = getDailyByCategory(sessions);
   const days = getLast7Days();
 
   const datasets = categories.map((cat) => {
