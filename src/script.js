@@ -17,6 +17,8 @@ import {
   categories,
 } from "./constants.js";
 
+import { createTimer } from "./timer.js";
+
 let startX = 0;
 let startY = 0;
 let currentItem = null;
@@ -24,7 +26,6 @@ let hasVibrated = false;
 
 let visibleCount = 100;
 
-let interval = null;
 const timer = document.getElementById("timer");
 const display = document.getElementById("time-display");
 const select = document.getElementById("category-select");
@@ -33,6 +34,7 @@ const nodeTotal = document.getElementById("total");
 const settingsBtn = document.getElementById("settings-button");
 const settingsMenu = document.getElementById("settings-menu");
 
+const timerInstance = createTimer(display, formatTime);
 // =====================================helpers:
 
 export function setCollapsedState(state) {
@@ -98,7 +100,7 @@ toggleBtn.onclick = () => {
     StorageManager.setLastCategory(category);
 
     timer.classList.add("running");
-    startTimerUI(session.start);
+    timerInstance.start(session.start);
   } else {
     // STOP
     const session = StorageManager.getActiveSession();
@@ -112,7 +114,7 @@ toggleBtn.onclick = () => {
 
     timer.classList.remove("running");
 
-    resetUI();
+    timerInstance.reset();
     updateSessionsUI();
   }
 
@@ -170,21 +172,6 @@ function setupModalClose(modal) {
   });
 }
 
-// UI timer:
-function startTimerUI(startTime) {
-  clearInterval(interval);
-
-  interval = setInterval(() => {
-    const diff = Date.now() - startTime;
-    display.textContent = formatTime(diff);
-  }, 1000);
-}
-
-function resetUI() {
-  clearInterval(interval);
-  display.textContent = "00:00:00";
-}
-
 // RESTORE:
 window.addEventListener("load", () => {
   populateCategories();
@@ -194,7 +181,7 @@ window.addEventListener("load", () => {
 
   if (session) {
     timer.classList.add("running");
-    startTimerUI(session.start);
+    timerInstance.start(session.start);
   }
 
   updateToggleButton();
