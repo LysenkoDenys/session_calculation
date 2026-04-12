@@ -1,8 +1,21 @@
 import { renderChart } from "./chart.js";
+import { renderSessionsList } from "./sessions.js";
 import { StorageManager } from "./storage.js";
 
-const COLLAPSE_KEY = "collapsedDays";
-export const categories = ["work", "study", "exercise", "other"];
+import {
+  groupSessionsByDay,
+  formatTime,
+  formatCurrentTime,
+  getDayformatDate,
+  getTotal,
+} from "./helpers.js";
+
+import {
+  COLLAPSE_KEY,
+  SWIPE_THRESHOLD,
+  SWIPE_LIMIT,
+  categories,
+} from "./constants.js";
 
 let startX = 0;
 let startY = 0;
@@ -22,27 +35,11 @@ const settingsMenu = document.getElementById("settings-menu");
 
 // =====================================helpers:
 
-function groupSessionsByDay(sessions) {
-  const groups = {};
-
-  sessions.forEach((s) => {
-    const day = getDayformatDate(s.end);
-
-    if (!groups[day]) {
-      groups[day] = [];
-    }
-
-    groups[day].push(s);
-  });
-
-  return groups;
-}
-
-function setCollapsedState(state) {
+export function setCollapsedState(state) {
   localStorage.setItem(COLLAPSE_KEY, JSON.stringify(state));
 }
 
-function getCollapsedState() {
+export function getCollapsedState() {
   return JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {};
 }
 
@@ -56,24 +53,6 @@ document.addEventListener("click", (e) => {
   }
 });
 
-function formatTime(ms) {
-  const totalSeconds = Math.floor(ms / 1000);
-  const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-  const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-  const s = String(totalSeconds % 60).padStart(2, "0");
-  return `${h}:${m}:${s}`;
-}
-
-function formatCurrentTime(ms) {
-  const date = new Date(ms);
-
-  const h = String(date.getHours()).padStart(2, "0");
-  const m = String(date.getMinutes()).padStart(2, "0");
-  const s = String(date.getSeconds()).padStart(2, "0");
-
-  return `${h}:${m}:${s}`;
-}
-
 function formatDate(ms) {
   const date = new Date(ms);
 
@@ -84,15 +63,6 @@ function formatDate(ms) {
   const m = String(date.getMinutes()).padStart(2, "0");
   const s = String(date.getSeconds()).padStart(2, "0");
   return `${y}-${mo}-${d}_${h}:${m}:${s}`;
-}
-
-export function getDayformatDate(ms) {
-  const date = new Date(ms);
-
-  const y = date.getFullYear();
-  const mo = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${mo}-${d}`;
 }
 
 const toggleBtn = document.getElementById("toggle-button");
@@ -143,7 +113,7 @@ toggleBtn.onclick = () => {
     timer.classList.remove("running");
 
     resetUI();
-    populateSessions();
+    updateSessionsUI();
   }
 
   updateToggleButton();
@@ -177,134 +147,20 @@ function resetSwipe() {
   hasVibrated = false;
 }
 
-function populateSessions() {
-  nodeSessionsList.innerHTML = "";
-
-  const collapsedState = getCollapsedState();
-
-  //=====================================================================
+function updateSessionsUI() {
   const allSessions = StorageManager.getSessions();
 
-  // if you get started or clear all the sessions:
-  const emptyState = document.getElementById("empty-state");
+  const sorted = [...allSessions].sort((a, b) => b.start - a.start);
+  const limited = sorted.slice(0, visibleCount);
 
-  console.log("sessions:", allSessions);
-  console.log("emptyState:", emptyState);
-  console.log(document.getElementById("empty-state"));
-
-  if (!allSessions || allSessions.length === 0) {
-    emptyState.classList.remove("hidden"); // прибираємо hidden
-    emptyState.classList.add("show"); // запускаємо анімацію
-    return;
-  } else {
-    emptyState.classList.remove("show");
-    emptyState.classList.add("hidden"); // сховати
-  }
-
-  //=====================================================================
-
-  // 🔥 load last limited sessions only:
-  const sessionsList = [...allSessions]
-    .sort((a, b) => b.start - a.start)
-    .slice(0, visibleCount);
-  const grouped = groupSessionsByDay(sessionsList);
-
-  const total = allSessions.length;
-  const remaining = total - visibleCount;
-
-  const label = loadMoreBtn.querySelector(".label");
-
-  if (total > visibleCount) {
-    loadMoreBtn.style.display = "block";
-    label.textContent = `Load more (${remaining} left)`;
-  } else {
-    loadMoreBtn.style.display = "none";
-  }
-
-  const sortedDays = Object.keys(grouped).sort().reverse();
-
-  sortedDays.forEach((day) => {
-    const dayGroup = document.createElement("div");
-    dayGroup.className = "day-group";
-
-    // 📂 wrapper for sessions:
-    const wrapper = document.createElement("div");
-    wrapper.className = "day-sessions";
-
-    // 📅 header of the day:
-    const dayHeader = document.createElement("div");
-    dayHeader.className = "day-header";
-    dayHeader.onclick = () => {
-      const state = getCollapsedState();
-
-      wrapper.classList.toggle("collapsed");
-
-      const isNowCollapsed = wrapper.classList.contains("collapsed");
-
-      state[day] = isNowCollapsed;
-      setCollapsedState(state);
-
-      const label = dayHeader.querySelector(".day-label");
-      label.textContent = isNowCollapsed ? "▶ " + day : "▼ " + day;
-    };
-
-    // 📊 total for the day:
-    const total = getTotal(grouped[day]);
-
-    const today = getDayformatDate(Date.now());
-
-    let isCollapsed;
-
-    if (collapsedState[day] !== undefined) {
-      isCollapsed = collapsedState[day];
-    } else {
-      isCollapsed = day !== today;
-    }
-    dayHeader.innerHTML = `
-  <span class="day-label">${isCollapsed ? "▶" : "▼"} ${day}</span>
-  <span class="day-total">${formatTime(total)}</span>
-`;
-
-    if (isCollapsed) {
-      wrapper.classList.add("collapsed");
-    }
-
-    grouped[day]
-      .sort((a, b) => b.start - a.start)
-      .forEach((item) => {
-        const sessionItem = document.createElement("div");
-        sessionItem.className = "session-item";
-        sessionItem.dataset.id = item.start;
-
-        const topRow = document.createElement("div");
-        topRow.className = "session-item__top";
-
-        const divCategory = document.createElement("div");
-        divCategory.innerHTML = `${item.category}:`;
-        divCategory.className = "session-item__category";
-
-        const divDur = document.createElement("div");
-        divDur.innerHTML = `${formatTime(item.duration)}`;
-        divDur.className = "session-item__duration";
-
-        topRow.appendChild(divCategory);
-        topRow.appendChild(divDur);
-
-        const divInfo = document.createElement("div");
-        divInfo.innerHTML = `${formatCurrentTime(item.start)} - ${formatCurrentTime(item.end)}`;
-        divInfo.className = "session-item__info";
-
-        sessionItem.appendChild(divCategory);
-        sessionItem.appendChild(divInfo);
-        sessionItem.appendChild(topRow);
-
-        wrapper.appendChild(sessionItem);
-      });
-
-    dayGroup.appendChild(dayHeader);
-    dayGroup.appendChild(wrapper);
-
-    nodeSessionsList.appendChild(dayGroup);
+  renderSessionsList(limited, nodeSessionsList, {
+    formatTime,
+    formatCurrentTime,
+    getDayformatDate,
+    getCollapsedState,
+    setCollapsedState,
+    groupSessionsByDay,
+    getTotal,
   });
 }
 
@@ -312,13 +168,6 @@ function setupModalClose(modal) {
   modal.addEventListener("click", (e) => {
     if (e.target === modal) modal.classList.add("hidden");
   });
-}
-
-function getTotal(sessionsOfDay) {
-  return sessionsOfDay.reduce(
-    (accumulator, currentValue) => accumulator + currentValue.duration,
-    0,
-  );
 }
 
 // UI timer:
@@ -339,7 +188,7 @@ function resetUI() {
 // RESTORE:
 window.addEventListener("load", () => {
   populateCategories();
-  populateSessions();
+  updateSessionsUI();
 
   const session = StorageManager.getActiveSession();
 
@@ -367,7 +216,7 @@ document.getElementById("confirm-delete-all").onclick = () => {
 
   modalDeleteAll.classList.add("hidden");
 
-  populateSessions();
+  updateSessionsUI();
 };
 
 setupModalClose(modalDeleteAll);
@@ -432,7 +281,7 @@ function importData(file) {
       if (!confirm("Replace current data?")) return;
       StorageManager.setSessions(parsed);
 
-      populateSessions();
+      updateSessionsUI();
     } catch (err) {
       alert("Invalid file");
     }
@@ -442,9 +291,6 @@ function importData(file) {
 }
 
 // =====================================left swipe:
-const SWIPE_THRESHOLD = -40;
-const SWIPE_LIMIT = -30;
-
 nodeSessionsList.addEventListener("touchstart", (e) => {
   const item = e.target.closest(".session-item");
   if (!item) return;
@@ -576,7 +422,7 @@ undoBtn.onclick = () => {
   pendingDelete = null;
   hideUndoToast();
 
-  populateSessions();
+  updateSessionsUI();
 };
 
 function finalizeDelete() {
@@ -591,7 +437,7 @@ function finalizeDelete() {
 
   hideUndoToast();
 
-  populateSessions();
+  updateSessionsUI();
 }
 
 function showUndoToast() {
@@ -618,7 +464,7 @@ loadMoreBtn.onclick = () => {
   const scrollTop = nodeSessionsList.scrollTop;
 
   visibleCount += 100;
-  populateSessions();
+  updateSessionsUI();
 
   nodeSessionsList.scrollTop = scrollTop;
 };

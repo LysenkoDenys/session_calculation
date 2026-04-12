@@ -1,4 +1,5 @@
-import { getDayformatDate, categories } from "./script.js";
+import { categories } from "./constants.js";
+import { getDayformatDate } from "./helpers.js";
 
 const colors = {
   work: "#4f46e5",
