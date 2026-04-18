@@ -26,16 +26,39 @@ const UI = {
   timer: document.getElementById('timer'),
   display: document.getElementById('time-display'),
   select: document.getElementById('category-select'),
+
+  toggleBtn: document.getElementById('toggle-button'),
+  toggleIcon: document.getElementById('toggle-icon'),
+
+  settingsBtn: document.getElementById('settings-button'),
+  settingsMenu: document.getElementById('settings-menu'),
+
+  loadMoreBtn: document.getElementById('load-more'),
+
+  modalDeleteAll: document.getElementById('modal-delete-all'),
+  chartModal: document.getElementById('chart-modal'),
+
+  chartBtn: document.getElementById('chart-button'),
+
+  deleteBtn: document.getElementById('delete-button'),
+  cancelDeleteAllBtn: document.getElementById('cancel-delete-all'),
+  confirmDeleteAllBtn: document.getElementById('confirm-delete-all'),
+
+  exportBtn: document.getElementById('export-button'),
+  importBtn: document.getElementById('import-button'),
+  importInput: document.getElementById('import-input'),
+
+  undoToast: document.getElementById('undo-toast'),
+  undoBtn: document.getElementById('undo-btn'),
+  undoProgressBar: document.querySelector('.undo-progress'),
+
+  nodeSessionsList: document.getElementById('session-container'),
 };
 
-const timer = document.getElementById('timer');
-const display = document.getElementById('time-display');
-const select = document.getElementById('category-select');
-export const nodeSessionsList = document.getElementById('session-container');
-const settingsBtn = document.getElementById('settings-button');
-const settingsMenu = document.getElementById('settings-menu');
+UI.undoTextSpan = UI.undoBtn?.querySelector('span');
 
-const timerInstance = createTimer(display, formatTime);
+const timerInstance = createTimer(UI.display, formatTime);
+
 // =====================================helpers:
 const sessionHelpers = {
   formatTime,
@@ -55,18 +78,18 @@ export function getCollapsedState() {
   return JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {};
 }
 
-settingsBtn.onclick = () => {
-  settingsMenu.classList.toggle('hidden');
+UI.settingsBtn.onclick = () => {
+  UI.settingsMenu.classList.toggle('hidden');
 };
 
 document.addEventListener('click', (e) => {
-  if (!settingsMenu.contains(e.target) && !settingsBtn.contains(e.target)) {
-    settingsMenu.classList.add('hidden');
+  if (
+    !UI.settingsMenu.contains(e.target) &&
+    !UI.settingsBtn.contains(e.target)
+  ) {
+    UI.settingsMenu.classList.add('hidden');
   }
 });
-
-const toggleBtn = document.getElementById('toggle-button');
-const toggleIcon = document.getElementById('toggle-icon');
 
 function isRunning() {
   return StorageManager.getActiveSession() !== null;
@@ -74,20 +97,20 @@ function isRunning() {
 
 function updateToggleButton() {
   if (isRunning()) {
-    toggleBtn.classList.remove('start');
-    toggleBtn.classList.add('stop');
-    toggleIcon.className = 'fa-solid fa-stop';
+    UI.toggleBtn.classList.remove('start');
+    UI.toggleBtn.classList.add('stop');
+    UI.toggleIcon.className = 'fa-solid fa-stop';
   } else {
-    toggleBtn.classList.remove('stop');
-    toggleBtn.classList.add('start');
-    toggleIcon.className = 'fa-solid fa-play';
+    UI.toggleBtn.classList.remove('stop');
+    UI.toggleBtn.classList.add('start');
+    UI.toggleIcon.className = 'fa-solid fa-play';
   }
 }
 
-toggleBtn.onclick = () => {
+UI.toggleBtn.onclick = () => {
   if (!isRunning()) {
     // START
-    const category = select.value || 'other';
+    const category = UI.select.value || 'other';
 
     const session = {
       start: Date.now(),
@@ -97,7 +120,7 @@ toggleBtn.onclick = () => {
     StorageManager.setActiveSession(session);
     StorageManager.setLastCategory(category);
 
-    timer.classList.add('running');
+    UI.timer.classList.add('running');
     timerInstance.start(session.start);
   } else {
     // STOP
@@ -110,7 +133,7 @@ toggleBtn.onclick = () => {
 
     StorageManager.removeActiveSession();
 
-    timer.classList.remove('running');
+    UI.timer.classList.remove('running');
 
     timerInstance.reset();
     updateSessionsUI();
@@ -120,7 +143,7 @@ toggleBtn.onclick = () => {
 };
 
 export function populateCategories() {
-  select.innerHTML = '';
+  UI.select.innerHTML = '';
 
   const lastCategory = StorageManager.getLastCategory();
 
@@ -133,7 +156,7 @@ export function populateCategories() {
       option.selected = true;
     }
 
-    select.appendChild(option);
+    UI.select.appendChild(option);
   });
 }
 
@@ -143,36 +166,35 @@ function updateSessionsUI() {
   const sorted = [...allSessions].sort((a, b) => b.start - a.start);
   const limited = sorted.slice(0, visibleCount);
 
-  renderSessionsList(limited, nodeSessionsList, sessionHelpers);
+  renderSessionsList(limited, UI.nodeSessionsList, sessionHelpers);
 }
 
 function setupModalClose(modal) {
+  if (!modal) return;
   modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.add('hidden');
   });
 }
 
-// lad more button:
-const loadMoreBtn = document.getElementById('load-more');
-
-loadMoreBtn.onclick = () => {
-  const scrollTop = nodeSessionsList.scrollTop;
+// load more button:
+UI.loadMoreBtn.onclick = () => {
+  const scrollTop = UI.nodeSessionsList.scrollTop;
 
   visibleCount += 100;
   updateSessionsUI();
 
-  nodeSessionsList.scrollTop = scrollTop;
+  UI.nodeSessionsList.scrollTop = scrollTop;
 };
 
 // RESTORE:
-window.addEventListener('load', () => {
+window.addEventListener('DOMContentLoaded', () => {
   populateCategories();
   updateSessionsUI();
 
   const session = StorageManager.getActiveSession();
 
   if (session) {
-    timer.classList.add('running');
+    UI.timer.classList.add('running');
     timerInstance.start(session.start);
   }
 
@@ -180,48 +202,38 @@ window.addEventListener('load', () => {
 });
 
 // REMOVE all the data:
-const modalDeleteAll = document.getElementById('modal-delete-all');
-
-document.getElementById('delete-button').onclick = () => {
-  modalDeleteAll.classList.remove('hidden');
+UI.deleteBtn.onclick = () => {
+  UI.modalDeleteAll.classList.remove('hidden');
 };
 
-document.getElementById('cancel-delete-all').onclick = () => {
-  modalDeleteAll.classList.add('hidden');
+UI.cancelDeleteAllBtn.onclick = () => {
+  UI.modalDeleteAll.classList.add('hidden');
 };
 
-document.getElementById('confirm-delete-all').onclick = () => {
+UI.confirmDeleteAllBtn.onclick = () => {
   StorageManager.clearAll();
 
-  modalDeleteAll.classList.add('hidden');
+  UI.modalDeleteAll.classList.add('hidden');
 
   updateSessionsUI();
 };
 
-setupModalClose(modalDeleteAll);
+setupModalClose(UI.chartModal);
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    modalDeleteAll.classList.add('hidden');
+    UI.modalDeleteAll.classList.add('hidden');
   }
 });
 
-const chartModal = document.getElementById('chart-modal');
-
-document.getElementById('chart-button').onclick = () => {
+UI.chartBtn.onclick = () => {
   const sessions = StorageManager.getSessions();
-  chartModal.classList.remove('hidden');
+  UI.chartModal.classList.remove('hidden');
   renderChart(sessions);
 };
 
-chartModal.addEventListener('click', (e) => {
-  if (e.target === chartModal) {
-    chartModal.classList.add('hidden');
-  }
-});
-
 // Export:
-document.getElementById('export-button').onclick = exportData;
+UI.exportBtn.onclick = exportData;
 
 function exportData() {
   const data = JSON.stringify(StorageManager.getSessions(), null, 2);
@@ -236,11 +248,11 @@ function exportData() {
 }
 
 // Import:
-document.getElementById('import-button').onclick = () => {
-  document.getElementById('import-input').click();
+UI.importBtn.onclick = () => {
+  UI.importInput.click();
 };
 
-document.getElementById('import-input').addEventListener('change', (e) => {
+UI.importInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file) {
     importData(file);
@@ -270,10 +282,10 @@ function importData(file) {
 }
 
 // =====================================undo delete:
-const undoToast = document.getElementById('undo-toast');
-const undoBtn = document.getElementById('undo-btn');
-const undoProgressBar = document.querySelector('.undo-progress');
-const undoTextSpan = undoBtn.querySelector('span');
+// const undoToast = document.getElementById('undo-toast');
+// const undoBtn = document.getElementById('undo-btn');
+// const undoProgressBar = document.querySelector('.undo-progress');
+// const undoTextSpan = undoBtn.querySelector('span');
 
 let pendingDeleteId = null;
 let undoStartTime = null;
@@ -311,11 +323,13 @@ function startUndoTimer() {
 
 function updateUndoProgress(progress) {
   // reduce from left to right:
-  undoProgressBar.style.transform = `scaleX(${1 - progress})`;
+  UI.undoProgressBar.style.transform = `scaleX(${1 - progress})`;
 
   // text seconds:
   const secondsLeft = Math.ceil((undoDuration * (1 - progress)) / 1000);
-  undoTextSpan.textContent = `Undo (${secondsLeft})`;
+  if (UI.undoTextSpan) {
+    UI.undoTextSpan.textContent = `Undo (${secondsLeft})`;
+  }
 }
 
 function cancelUndoTimer() {
@@ -325,7 +339,7 @@ function cancelUndoTimer() {
   }
 }
 
-undoBtn.onclick = () => {
+UI.undoBtn.onclick = () => {
   cancelUndoTimer();
   pendingDeleteId = null;
   hideUndoToast();
@@ -349,25 +363,25 @@ function finalizeDelete() {
 }
 
 function showUndoToast() {
-  undoToast.classList.remove('hidden');
-  const bar = document.querySelector('.undo-progress');
+  UI.undoToast.classList.remove('hidden');
+  const bar = UI.undoProgressBar;
   bar.style.transform = 'scaleX(1)';
 
   setTimeout(() => {
-    undoToast.classList.add('show');
+    UI.undoToast.classList.add('show');
   }, 10);
 }
 
 function hideUndoToast() {
-  undoToast.classList.remove('show');
+  UI.undoToast.classList.remove('show');
 
   setTimeout(() => {
-    undoToast.classList.add('hidden');
+    UI.undoToast.classList.add('hidden');
   }, 200);
 }
 
 initSwipe({
-  container: nodeSessionsList,
+  container: UI.nodeSessionsList,
   onSwipeDelete: (id) => {
     handleDeleteWithUndo(id);
   },
