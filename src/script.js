@@ -1,6 +1,7 @@
-import { renderChart } from "./chart.js";
-import { renderSessionsList } from "./sessions.js";
-import { StorageManager } from "./storage.js";
+import { renderChart } from './chart.js';
+import { renderSessionsList } from './sessions.js';
+import { StorageManager } from './storage.js';
+import { initSwipe } from './swipe.js';
 
 import {
   groupSessionsByDay,
@@ -8,34 +9,43 @@ import {
   formatCurrentTime,
   getDayformatDate,
   getTotal,
-} from "./helpers.js";
+} from './helpers.js';
 
 import {
   COLLAPSE_KEY,
   SWIPE_THRESHOLD,
   SWIPE_LIMIT,
   categories,
-} from "./constants.js";
+} from './constants.js';
 
-import { createTimer } from "./timer.js";
-
-let startX = 0;
-let startY = 0;
-let currentItem = null;
-let hasVibrated = false;
+import { createTimer } from './timer.js';
 
 let visibleCount = 100;
 
-const timer = document.getElementById("timer");
-const display = document.getElementById("time-display");
-const select = document.getElementById("category-select");
-const nodeSessionsList = document.getElementById("session-container");
-const nodeTotal = document.getElementById("total");
-const settingsBtn = document.getElementById("settings-button");
-const settingsMenu = document.getElementById("settings-menu");
+const UI = {
+  timer: document.getElementById('timer'),
+  display: document.getElementById('time-display'),
+  select: document.getElementById('category-select'),
+};
+
+const timer = document.getElementById('timer');
+const display = document.getElementById('time-display');
+const select = document.getElementById('category-select');
+export const nodeSessionsList = document.getElementById('session-container');
+const settingsBtn = document.getElementById('settings-button');
+const settingsMenu = document.getElementById('settings-menu');
 
 const timerInstance = createTimer(display, formatTime);
 // =====================================helpers:
+const sessionHelpers = {
+  formatTime,
+  formatCurrentTime,
+  getDayformatDate,
+  getCollapsedState,
+  setCollapsedState,
+  groupSessionsByDay,
+  getTotal,
+};
 
 export function setCollapsedState(state) {
   localStorage.setItem(COLLAPSE_KEY, JSON.stringify(state));
@@ -46,50 +56,38 @@ export function getCollapsedState() {
 }
 
 settingsBtn.onclick = () => {
-  settingsMenu.classList.toggle("hidden");
+  settingsMenu.classList.toggle('hidden');
 };
 
-document.addEventListener("click", (e) => {
+document.addEventListener('click', (e) => {
   if (!settingsMenu.contains(e.target) && !settingsBtn.contains(e.target)) {
-    settingsMenu.classList.add("hidden");
+    settingsMenu.classList.add('hidden');
   }
 });
 
-function formatDate(ms) {
-  const date = new Date(ms);
-
-  const y = date.getFullYear();
-  const mo = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  const h = String(date.getHours()).padStart(2, "0");
-  const m = String(date.getMinutes()).padStart(2, "0");
-  const s = String(date.getSeconds()).padStart(2, "0");
-  return `${y}-${mo}-${d}_${h}:${m}:${s}`;
-}
-
-const toggleBtn = document.getElementById("toggle-button");
-const toggleIcon = document.getElementById("toggle-icon");
+const toggleBtn = document.getElementById('toggle-button');
+const toggleIcon = document.getElementById('toggle-icon');
 
 function isRunning() {
-  return !!StorageManager.getActiveSession();
+  return StorageManager.getActiveSession() !== null;
 }
 
 function updateToggleButton() {
   if (isRunning()) {
-    toggleBtn.classList.remove("start");
-    toggleBtn.classList.add("stop");
-    toggleIcon.className = "fa-solid fa-stop";
+    toggleBtn.classList.remove('start');
+    toggleBtn.classList.add('stop');
+    toggleIcon.className = 'fa-solid fa-stop';
   } else {
-    toggleBtn.classList.remove("stop");
-    toggleBtn.classList.add("start");
-    toggleIcon.className = "fa-solid fa-play";
+    toggleBtn.classList.remove('stop');
+    toggleBtn.classList.add('start');
+    toggleIcon.className = 'fa-solid fa-play';
   }
 }
 
 toggleBtn.onclick = () => {
   if (!isRunning()) {
     // START
-    const category = select.value || "other";
+    const category = select.value || 'other';
 
     const session = {
       start: Date.now(),
@@ -99,7 +97,7 @@ toggleBtn.onclick = () => {
     StorageManager.setActiveSession(session);
     StorageManager.setLastCategory(category);
 
-    timer.classList.add("running");
+    timer.classList.add('running');
     timerInstance.start(session.start);
   } else {
     // STOP
@@ -107,12 +105,12 @@ toggleBtn.onclick = () => {
     const end = Date.now();
     const duration = end - session.start;
 
-    const sessions = StorageManager.getSessions();
+    const sessions = [...StorageManager.getSessions()];
     StorageManager.setSessions([...sessions, { ...session, end, duration }]);
 
     StorageManager.removeActiveSession();
 
-    timer.classList.remove("running");
+    timer.classList.remove('running');
 
     timerInstance.reset();
     updateSessionsUI();
@@ -122,12 +120,12 @@ toggleBtn.onclick = () => {
 };
 
 export function populateCategories() {
-  select.innerHTML = "";
+  select.innerHTML = '';
 
   const lastCategory = StorageManager.getLastCategory();
 
   categories.forEach((cat) => {
-    const option = document.createElement("option");
+    const option = document.createElement('option');
     option.value = cat;
     option.textContent = cat;
 
@@ -139,48 +137,42 @@ export function populateCategories() {
   });
 }
 
-function resetSwipe() {
-  if (!currentItem) return;
-
-  currentItem.style.transform = "translateX(0)";
-  currentItem.style.opacity = "1";
-
-  currentItem = null;
-  hasVibrated = false;
-}
-
 function updateSessionsUI() {
   const allSessions = StorageManager.getSessions();
 
   const sorted = [...allSessions].sort((a, b) => b.start - a.start);
   const limited = sorted.slice(0, visibleCount);
 
-  renderSessionsList(limited, nodeSessionsList, {
-    formatTime,
-    formatCurrentTime,
-    getDayformatDate,
-    getCollapsedState,
-    setCollapsedState,
-    groupSessionsByDay,
-    getTotal,
-  });
+  renderSessionsList(limited, nodeSessionsList, sessionHelpers);
 }
 
 function setupModalClose(modal) {
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.classList.add("hidden");
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.add('hidden');
   });
 }
 
+// lad more button:
+const loadMoreBtn = document.getElementById('load-more');
+
+loadMoreBtn.onclick = () => {
+  const scrollTop = nodeSessionsList.scrollTop;
+
+  visibleCount += 100;
+  updateSessionsUI();
+
+  nodeSessionsList.scrollTop = scrollTop;
+};
+
 // RESTORE:
-window.addEventListener("load", () => {
+window.addEventListener('load', () => {
   populateCategories();
   updateSessionsUI();
 
   const session = StorageManager.getActiveSession();
 
   if (session) {
-    timer.classList.add("running");
+    timer.classList.add('running');
     timerInstance.start(session.start);
   }
 
@@ -188,67 +180,67 @@ window.addEventListener("load", () => {
 });
 
 // REMOVE all the data:
-const modalDeleteAll = document.getElementById("modal-delete-all");
+const modalDeleteAll = document.getElementById('modal-delete-all');
 
-document.getElementById("delete-button").onclick = () => {
-  modalDeleteAll.classList.remove("hidden");
+document.getElementById('delete-button').onclick = () => {
+  modalDeleteAll.classList.remove('hidden');
 };
 
-document.getElementById("cancel-delete-all").onclick = () => {
-  modalDeleteAll.classList.add("hidden");
+document.getElementById('cancel-delete-all').onclick = () => {
+  modalDeleteAll.classList.add('hidden');
 };
 
-document.getElementById("confirm-delete-all").onclick = () => {
+document.getElementById('confirm-delete-all').onclick = () => {
   StorageManager.clearAll();
 
-  modalDeleteAll.classList.add("hidden");
+  modalDeleteAll.classList.add('hidden');
 
   updateSessionsUI();
 };
 
 setupModalClose(modalDeleteAll);
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    modalDeleteAll.classList.add("hidden");
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    modalDeleteAll.classList.add('hidden');
   }
 });
 
-const chartModal = document.getElementById("chart-modal");
+const chartModal = document.getElementById('chart-modal');
 
-document.getElementById("chart-button").onclick = () => {
+document.getElementById('chart-button').onclick = () => {
   const sessions = StorageManager.getSessions();
-  chartModal.classList.remove("hidden");
+  chartModal.classList.remove('hidden');
   renderChart(sessions);
 };
 
-chartModal.addEventListener("click", (e) => {
+chartModal.addEventListener('click', (e) => {
   if (e.target === chartModal) {
-    chartModal.classList.add("hidden");
+    chartModal.classList.add('hidden');
   }
 });
 
 // Export:
-document.getElementById("export-button").onclick = exportData;
+document.getElementById('export-button').onclick = exportData;
 
 function exportData() {
   const data = JSON.stringify(StorageManager.getSessions(), null, 2);
 
-  const blob = new Blob([data], { type: "application/json" });
+  const blob = new Blob([data], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
 
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
-  a.download = "sessions.json";
+  a.download = 'sessions.json';
   a.click();
 }
 
 // Import:
-document.getElementById("import-button").onclick = () => {
-  document.getElementById("import-input").click();
+document.getElementById('import-button').onclick = () => {
+  document.getElementById('import-input').click();
 };
 
-document.getElementById("import-input").addEventListener("change", (e) => {
+document.getElementById('import-input').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file) {
     importData(file);
@@ -262,110 +254,42 @@ function importData(file) {
     try {
       const parsed = JSON.parse(e.target.result);
 
-      if (!Array.isArray(parsed)) {
-        throw new Error("Invalid format");
+      if (!Array.isArray(parsed) || parsed.some((s) => !s.start || !s.end)) {
+        throw new Error('Invalid format');
       }
-      if (!confirm("Replace current data?")) return;
+      if (!confirm('Replace current data?')) return;
       StorageManager.setSessions(parsed);
 
       updateSessionsUI();
     } catch (err) {
-      alert("Invalid file");
+      alert('Invalid file');
     }
   };
 
   reader.readAsText(file);
 }
 
-// =====================================left swipe:
-nodeSessionsList.addEventListener("touchstart", (e) => {
-  const item = e.target.closest(".session-item");
-  if (!item) return;
-
-  currentItem = item;
-
-  startX = e.touches[0].clientX;
-  startY = e.touches[0].clientY;
-
-  currentItem.style.transition = "none";
-});
-nodeSessionsList.addEventListener("touchmove", (e) => {
-  if (!currentItem) return;
-
-  const moveX = e.touches[0].clientX;
-  const diffX = moveX - startX;
-
-  if (diffX < 0) {
-    const limitedX =
-      diffX < SWIPE_LIMIT ? SWIPE_LIMIT + (diffX - SWIPE_LIMIT) * 0.2 : diffX;
-    currentItem.style.transform = `translateX(${limitedX}px)`;
-
-    const opacity = 1 + limitedX / 200;
-    currentItem.style.opacity = opacity;
-  }
-
-  if (diffX < SWIPE_THRESHOLD && !hasVibrated) {
-    navigator.vibrate?.(30);
-    hasVibrated = true;
-  }
-});
-nodeSessionsList.addEventListener("touchend", (e) => {
-  if (!currentItem) return;
-
-  const endX = e.changedTouches[0].clientX;
-  const endY = e.changedTouches[0].clientY;
-
-  const diffX = endX - startX;
-  const diffY = endY - startY;
-
-  currentItem.style.transition = "transform 0.2s ease";
-
-  if (Math.abs(diffY) > 30) {
-    resetSwipe();
-    return;
-  }
-
-  if (diffX < SWIPE_THRESHOLD) {
-    currentItem.style.transform = "translateX(-100%)";
-    currentItem.style.height = currentItem.offsetHeight + "px";
-    currentItem.style.overflow = "hidden";
-
-    const id = Number(currentItem.dataset.id);
-
-    setTimeout(() => {
-      const sessions = StorageManager.getSessions();
-      const session = sessions.find((s) => s.start === id);
-
-      if (session) {
-        handleDeleteWithUndo(session);
-      }
-      currentItem.style.transition = "height 0.2s ease";
-      currentItem.style.height = "0px";
-      resetSwipe();
-    }, 150);
-  } else {
-    resetSwipe();
-  }
-});
-
 // =====================================undo delete:
-const undoToast = document.getElementById("undo-toast");
-const undoBtn = document.getElementById("undo-btn");
+const undoToast = document.getElementById('undo-toast');
+const undoBtn = document.getElementById('undo-btn');
+const undoProgressBar = document.querySelector('.undo-progress');
+const undoTextSpan = undoBtn.querySelector('span');
 
-let pendingDelete = null;
+let pendingDeleteId = null;
 let undoStartTime = null;
 let undoDuration = 3000;
 let undoRAF = null;
 
-function handleDeleteWithUndo(session) {
-  pendingDelete = session;
+function handleDeleteWithUndo(id) {
+  if (pendingDeleteId !== null) return;
+  pendingDeleteId = id;
 
   showUndoToast();
   startUndoTimer();
 }
 
 function startUndoTimer() {
-  cancelUndoTimer(); // на всякий
+  cancelUndoTimer();
 
   undoStartTime = performance.now();
 
@@ -386,15 +310,12 @@ function startUndoTimer() {
 }
 
 function updateUndoProgress(progress) {
-  const bar = document.querySelector(".undo-progress");
+  // reduce from left to right:
+  undoProgressBar.style.transform = `scaleX(${1 - progress})`;
 
-  // зменшується зліва направо
-  bar.style.transform = `scaleX(${1 - progress})`;
-
-  // (опціонально) текст секунд
+  // text seconds:
   const secondsLeft = Math.ceil((undoDuration * (1 - progress)) / 1000);
-  const textSpan = undoBtn.querySelector("span");
-  textSpan.textContent = `Undo (${secondsLeft})`;
+  undoTextSpan.textContent = `Undo (${secondsLeft})`;
 }
 
 function cancelUndoTimer() {
@@ -406,21 +327,21 @@ function cancelUndoTimer() {
 
 undoBtn.onclick = () => {
   cancelUndoTimer();
-  pendingDelete = null;
+  pendingDeleteId = null;
   hideUndoToast();
 
   updateSessionsUI();
 };
 
 function finalizeDelete() {
-  if (!pendingDelete) return;
+  if (pendingDeleteId === null) return;
 
   const sessions = StorageManager.getSessions();
-  const updated = sessions.filter((s) => s.start !== pendingDelete.start);
+  const updated = sessions.filter((s) => s.start !== pendingDeleteId);
 
   StorageManager.setSessions(updated);
 
-  pendingDelete = null;
+  pendingDeleteId = null;
 
   hideUndoToast();
 
@@ -428,30 +349,30 @@ function finalizeDelete() {
 }
 
 function showUndoToast() {
-  undoToast.classList.remove("hidden");
-  const bar = document.querySelector(".undo-progress");
-  bar.style.transform = "scaleX(1)";
+  undoToast.classList.remove('hidden');
+  const bar = document.querySelector('.undo-progress');
+  bar.style.transform = 'scaleX(1)';
 
   setTimeout(() => {
-    undoToast.classList.add("show");
+    undoToast.classList.add('show');
   }, 10);
 }
 
 function hideUndoToast() {
-  undoToast.classList.remove("show");
+  undoToast.classList.remove('show');
 
   setTimeout(() => {
-    undoToast.classList.add("hidden");
+    undoToast.classList.add('hidden');
   }, 200);
 }
 
-const loadMoreBtn = document.getElementById("load-more");
-
-loadMoreBtn.onclick = () => {
-  const scrollTop = nodeSessionsList.scrollTop;
-
-  visibleCount += 100;
-  updateSessionsUI();
-
-  nodeSessionsList.scrollTop = scrollTop;
-};
+initSwipe({
+  container: nodeSessionsList,
+  onSwipeDelete: (id) => {
+    handleDeleteWithUndo(id);
+  },
+  constants: {
+    SWIPE_THRESHOLD,
+    SWIPE_LIMIT,
+  },
+});
